@@ -1,0 +1,445 @@
+--대소문자 변환 문자 함수
+SELECT UPPER('Oracle Database'),
+       LOWER('Oracle Database'),
+       INITCAP('oracle database')
+FROM dual;
+
+SELECT employee_id, last_name, UPPER(last_name),
+       job_id, INITCAP(job_id)
+FROM employees;
+
+SELECT employee_id, last_name, job_id
+FROM employees
+WHERE LOWER(last_name) = 'king';
+
+SELECT employee_id, last_name, job_id
+FROM employees
+WHERE last_name = INITCAP('king');
+
+--여러가지 문자 함수
+
+--concat
+SELECT CONCAT('Hello', 'world')
+FROM dual;
+
+SELECT CONCAT(CONCAT('Hello',' '),'World')
+FROM dual;
+
+--연결 연산자(||)와 같은 역할
+SELECT employee_id, CONCAT(first_name, last_name) full_name, job_id, email
+FROM employees;
+
+SELECT employee_id, CONCAT(CONCAT(first_name,' '), last_name) full_name, job_id, email
+FROM employees;
+
+--SUBSTR                                                                      (뒤에서)
+SELECT SUBSTR('Helloworld',1,5), SUBSTR('Helloworld', 6), SUBSTR('HElloWorld',-5,5)
+FROM dual;
+
+SELECT *
+FROM employees
+WHERE SUBSTR(last_name, -1, 1) ='n';
+
+SELECT *
+FROM employees
+WHERE last_name LIKE '%n';
+
+--LENGH
+SELECT LENGTH('oracle Database'), LENGTH('오라클 데이터베이스')
+FROM dual;
+
+SELECT *
+FROM employees
+WHERE LENGTH(last_name) > 6;
+
+--INSTR(Java : indexOf와 비슷)
+SELECT INSTR('HelloWorld','l')
+FROM dual;
+
+SELECT INSTR(last_name,'a'), last_name
+FROM employees;
+
+SELECT *
+FROM employees
+WHERE INSTR(last_name, 'a') = 0;
+
+SELECT *
+FROM employees
+WHERE last_name NOT LIKE '%a%';
+                         --(시작위치)(몇번째) 
+SELECT INSTR('HelloWorld', 'l', 1, 2), INSTR('HelloWorld', 'l', 1, 3)
+FROM dual;
+
+--LPAD                         (글자수) (부족분채우기)
+SELECT employee_id, RPAD(last_name, 15, '*') last_name, LPAD(salary, 10, '#') salary
+FROM employees;
+
+--REPLACE                  (이것을) (요걸로)
+SELECT REPLACE('Jack and JUE', 'J', 'BL')
+FROM dual;
+
+--복합 문자 함수
+SELECT employee_id, last_name,
+       REPLACE(last_name, SUBSTR(last_name,2,2),'**') As RESULT
+FROM employees;
+
+--TRIM -> 1) 양쪽의 공백을 지우는 것, 2) 양쪽에 데이터 지울 때 사용
+
+SELECT TRIM(' HelloWorld           ')
+FROM dual;
+
+SELECT TRIM('H' FROM 'HelloWorld'), TRIM('d'FROM 'HelloWorld')
+FROM dual;
+                                            --(앞)                            (뒤)
+SELECT TRIM('w' FROM 'window'), TRIM(LEADING 'w' FROM 'window'), TRIM(TRAILING 'w' FROM 'window')
+FROM dual;
+
+SELECT TRIM(0 FROM 000012345670), TRIM(LEADING 0 FROM 000012345670)
+FROM dual;
+        --안되는 TRIM, 지우고자 하는 조건 문자가 2개 이상이면 안됨
+--SELECT TRIM('xy' FROM 'xyxyxykkkxy')
+--FROM dual;
+
+select *
+from employees;
+
+--1
+SELECT concat('yedam','Database') yedamDatabase
+from dual;
+
+--2
+select lower(job_id), first_name||''||last_name
+from employees;
+ 
+--3
+select substr('WelcomeToCodingWorld',8,2), substr('WelcomeToCodingWorld',-5,5),substr('WelcomeToCodingWorld',1,18) 
+from dual;
+
+--4
+select  employee_id, last_name,
+replace(last_name, SUBSTR(last_name,2,3),'***')  
+from employees
+where Length(last_name) = 5;
+
+--5
+select LPAD(last_name, 10,'*'), RPAD(first_name, 10, '#')
+from employees;
+
+--6
+select employee_id,concat(first_name,last_name) NAME, job_id,length(last_name) NAME_LENGTH,INSTR(last_name,'a') "Contains 'a'"
+
+from employees
+where instr(job_id, 'REP') <> 0 ;
+
+--substr(job_id,4) = 'REP'
+
+--숫자 함수
+
+--반올림(원하는 위치지정 가능)
+SELECT ROUND(45.923, 2), ROUND(45.923), ROUND(45.923, -1)
+FROM dual;
+
+--내림(원하는 위치지정 가능)
+SELECT TRUNC(45.923, 2), TRUNC(45.923), TRUNC(45.923, -1)
+FROM dual;
+
+--나머지
+SELECT last_name, salary ,MOD(salary, 500)
+FROM employees
+WHERE job_id ='SA_REP';
+
+--(무조건 올림 , 내림, 원하는 위치지정 X)
+SELECT FLOOR(45.999), CEIL(45.9999)
+FROM dual;
+
+--날짜 연산
+
+--sysdate(yy-mm-dd)
+SELECT sysdate
+FROM dual;
+
+--일수 더하기
+SELECT sysdate + 10
+FROM dual;
+
+--근무 일수 구하기
+SELECT employee_id, last_name, hire_date, sysdate-hire_date) AS 근무일차
+FROM employees;
+
+SELECT employee_id, last_name, hire_date, TRUNC((sysdate-hire_date) AS 근무연차
+FROM employees;
+
+SELECT employee_id, last_name, hire_date, TRUNC((sysdate-hire_date)/365) AS 근무연차
+FROM employees;
+
+--근무한 주
+SELECT last_name, hire_date, ROUND((sysdate-hire_date)/7) AS WEEKS
+FROM employees;
+
+--날짜 함수
+
+SELECT MONTHS_BETWEEN('22/12/01', '22/01/01')  
+FROM dual;
+
+SELECT employee_id, last_name,
+TRUNC(MONTHS_BETWEEN(sysdate, hire_date)) AS "근무 기간"
+FROM employees;
+
+SELECT ADD_MONTHS(sysdate, 3), LAST_DAY(sysdate), NEXT_DAY(sysdate,'금')
+FROM dual;
+
+SELECT NEXT_DAY(sysdate, '금요일'), NEXT_DAY(sysdate,'금'),NEXT_DAY(sysdate, 6)
+FROM dual;
+
+ALTER SESSION SET
+NLS_DATE_FORMAT = 'yy/mm/dd';
+
+SELECT sysdate+1/24
+FROM dual;
+
+--날짜 표기 변경방식
+--SELECT NEXT_DAY(sysdate, 'FRIDAY')
+--FROM dual;
+
+
+--ALTER SESSION SET
+--NLS_DATE_LANGUAGE ='korean';
+
+--day는 요일, dd는 오늘
+--sysdate : 2023/02/10
+SELECT ROUND(sysdate, 'year'), ROUND(sysdate, 'month'), ROUND(sysdate, 'dd'), ROUND(sysdate, 'day')
+FROM dual;
+
+SELECT TRUNC(sysdate, 'year'), TRUNC(sysdate, 'month'), TRUNC(sysdate, 'dd'), TRUNC(sysdate, 'day')
+FROM dual;
+
+--변환함수
+SELECT employee_id, last_name, hire_date
+FROM employees;
+
+SELECT employee_id, last_name, TO_CHAR(hire_date,'yyyy-mm-dd')
+FROM employees;
+
+SELECT TO_CHAR(sysdate, 'yyyy/mm/dd hh24:mi:ss'), 
+       TO_CHAR(sysdate+3/24, 'yyyy/mm/dd hh24:mi:ss'),
+       TO_CHAR(sysdate+40/(24*60), 'yyyy/mm/dd hh24:mi:ss')
+FROM dual;
+
+--DDSPTH
+SELECT TO_CHAR(hire_date, 'yyyy "년" Ddspth month hh:mi:ss pm'),hire_date
+FROM employees;
+
+--q(쿼터 : 분기), w(주 : 해당 월에 몇주차)
+SELECT employee_id, last_name,TO_CHAR(hire_date, 'yyyy-mm-dd day') AS hire_date,
+TO_CHAR(hire_date,'q')AS 분기, --1년은 4분기
+TO_CHAR(hire_date,'w')||'주차' AS 주수 
+FROM employees;
+
+--숫자를 문자로 변환
+SELECT employee_id, last_name, salary, TO_CHAR(salary, '$999,999')
+FROM employees;
+
+SELECT employee_id, last_name, salary, TO_CHAR(salary, '$999,999'),TO_CHAR(salary, '$099,999')
+FROM employees;
+
+SELECT employee_id, last_name, salary, TO_CHAR(salary, 'L999,999')
+FROM employees;
+
+ALTER SESSION SET
+NLS_TERRITORY = korea;
+
+SELECT employee_id, last_name, salary, TO_CHAR(salary, 'L999,999')||'원'
+FROM employees;
+
+SELECT TO_CHAR(sysdate,'w')||'주차'
+FROM dual;
+
+SELECT TO_NUMBER('5000')
+FROM dual;
+
+SELECT employee_id, last_name, salary, hire_date
+FROM employees
+WHERE salary > TO_NUMBER('$8,000','$99,999');
+
+--문자 -> 숫자 변환
+SELECT TO_NUMBER('$3,400','$99,999')
+FROM dual;
+
+
+--문자 -> 날짜 변환
+SELECT employee_id, last_name, salary, hire_date
+FROM employees
+WHERE hire_date >'99/12/31';
+
+SELECT employee_id, last_name, salary, hire_date
+FROM employees
+WHERE hire_date > TO_DATE('99/12/31','rr/mm/dd');
+
+--NVL
+SELECT employee_id, last_name, salary, commission_pct, NVL(commission_pct, 0)
+FROM employees;
+
+SELECT employee_id, last_name, salary, (salary+salary*NVL(commission_pct,0)) AS monthly_sal
+FROM employees;
+
+SELECT employee_id, last_name, salary+salary*NVL(commission_pct, 0) AS monthly_sal,
+                    NVL2(commission_pct, 'y', 'N') AS comm_get
+FROM employees;
+
+SELECT last_name, salary, commission_pct,
+        NVL2(commission_pct, 'SAL+COMM','SAL')income
+FROM employees
+WHERE department_id IN (50,80);
+
+SELECT employee_id, last_name, salary+salary*NVL(commission_pct, 0) AS monthly_sal,
+                    NVL2(commission_pct, 'y', 'N') AS comm_get,
+                    NULLIF(salary, salary+salary*NVL(commission_pct, 0)) AS result
+FROM employees;
+
+SELECT first_name, LENGTH(first_name) "expr1",
+    last_name, LENGTH(last_name) "expr2",
+    NULLIF(LENGTH(first_name), LENGTH(last_name)) result
+FROM employees;
+
+--일반함수 COALESCE
+SELECT employee_id, commission_pct, manager_id,
+       COALESCE(commission_pct, manager_id, 1234) AS result
+FROM employees;
+
+SELECT last_name, employee_id,
+COALESCE(TO_CHAR(commission_pct), TO_CHAR(manager_id),
+'No Commission and No Manager')
+FROM employees;
+
+--case when then
+SELECT last_name, job_id, salary,
+        CASE job_id WHEN 'IT_PROG' THEN 1.10*salary
+        WHEN 'ST_CLEAK' THEN 1.15*salary
+        WHEN 'SA_REP' THEN 1.20*salary
+        ELSE salary END AS REVISED_SALARY
+FROM employees;
+
+SELECT last_name, job_id, salary,
+        CASE WHEN job_id = 'IT_PROG' THEN 1.10*salary
+        WHEN job_id ='ST_CLEAK' THEN 1.15*salary
+        WHEN job_id ='SA_REP' THEN 1.20*salary
+        ELSE salary END AS REVISED_SALARY
+FROM employees;
+
+SELECT employee_id, last_name, salary,
+CASE WHEN salary < 5000 THEN 'L'
+WHEN salary BETWEEN 5000 AND 9000 THEN 'M'
+ELSE 'H' END AS salary_grade
+FROM employees;
+
+--NVL2 -> CASE WHEN THEN
+SELECT employee_id, last_name, salary+salary*NVL(commission_pct, 0) AS monthly_sal,
+                    NVL2(commission_pct, 'y', 'N') AS comm_get,
+                    NULLIF(salary, salary+salary*NVL(commission_pct, 0)) AS result
+FROM employees;
+
+SELECT employee_id, last_name, salary+salary*NVL(commission_pct, 0) AS monthly_sal,
+CASE WHEN commission_pct IS NOT NULL THEN 'Y'
+ELSE 'N' END AS comm_get
+FROM employees;
+
+--DECODE
+SELECT last_name, job_id, salary,
+        CASE WHEN job_id = 'IT_PROG' THEN 1.10*salary
+        WHEN job_id ='ST_CLEAK' THEN 1.15*salary
+        WHEN job_id ='SA_REP' THEN 1.20*salary
+        ELSE salary END AS REVISED_SALARY
+FROM employees;
+
+SELECT last_name, job_id, salary,
+        DECODE(job_id, 'IT_PROG', 1.10*salary,
+                       'ST_CLERK', 1.15*salary,
+                       'SA_REP',1.20*salary,
+                       salary) REVISED_SALARY
+FROM employees;                            
+
+--Java switch, 시험 성적 -> 99~90 / 9, 89~80/ 8
+
+SELECT last_name, salary, 
+        DECODE(TRUNC(salary/2000, 0), 
+        0, 0.00,
+        1, 0.09,
+        2, 0.20,
+        3, 0.30,
+        4, 0.40,
+        5, 0.42,
+        6, 0.44,
+            0.45) TAX_RATE
+FROM employees;
+--51 월급이 1500 이상인 사원의 이름과, 월급에 천단위를 구분할 수 있는 콤마(,)와 화폐단위를 붙여 출력하라
+SELECT first_name||' '||last_name,salary
+FROM employees
+WHERE salary >=TO_NUMBER('$1500','$999,999);
+
+
+--52  2005년 06월 14일에 입사한 사원의 이름과 입사일을 출력하라
+SELECT first_name||' '||last_name,hire_date
+FROM employees
+WHERE hire_date = TO_DATE('05/06/14');
+--TO_DATE('99/12/31','rr/mm/dd');
+
+--53 사원의 이름과 커미션을 출력하라. 단 커미션이 NULL인 사원들은 0으로 출력하라
+SELECT employee_id, NVL(commission_pct,0)
+FROM employees;
+
+
+
+--54 직업이 'SA_MAN' 또는 'IT_PROG' 인 사원의 월급과 커미션, 그리고 월급과 커미션의 합을 출력하시오. 단 커미션이 NULL인 경우 0으로 표시하여 출력하라
+SELECT job_id, salary, NVL(commission_pct,0), NVL(commission_pct,0)+salary
+FROM employees
+WHERE job_id ='SA_MAN' or job_id = 'IT_PROG';
+
+
+--55 사원의 이름과 부서 번호를 출력하시오, 또한 부서 번호가 10번이면 300을, 부서 번호가 20번이면 400을, 나머지 부서 번호는 0을 출력하는 '보너스'를 출력하라
+SELECT employee_id, department_id,
+CASE WHEN department_id = 10 THEN 300
+WHEN department_id = 20 THEN 400
+ELSE 0 END AS BONUS
+FROM employees;
+
+select *
+FROM employees;
+
+--56
+SELECT employee_id,
+CASE WHEN MOD(employee_id,2)=0 THEN '짝수'
+ELSE '홀수' END
+FROM employees;
+
+
+--57
+SELECT concat(first_name,last_name),job_id,
+CASE WHEN job_id = 'SA_MAN' THEN 5000
+ELSE 2000 END BONUS
+FROM employees;
+
+
+--58
+SELECT first_name, last_name, salary,
+CASE WHEN salary>=3000 THEN 500
+WHEN salary>=2000 or salary<3000 THEN 300
+WHEN salary>=1000 or salary<2000 THEN 200
+ELSE 0 END AS BONUS
+FROM employees;
+
+
+--59
+SELECT first_name, last_name, job_id, commission_pct,
+CASE  WHEN commission_pct IS NULL THEN 500
+ELSE 0 END
+FROM employees;
+
+
+--60
+SELECT first_name, last_name, job_id, salary,
+CASE job_id WHEN 'SA_MAN' THEN 500
+WHEN 'PU_CLERK' THEN 500
+WHEN 'ST_CLERK' THEN 400
+WHEN 'ST_CLERK' THEN 400
+ELSE 0 END
+FROM employees;

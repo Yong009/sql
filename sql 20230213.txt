@@ -1,0 +1,132 @@
+SELECT SUM(salary), MAX(salary), MIN(salary), AVG(salary)
+FROM employees;
+
+
+SELECT SUM(salary), MAX(salary), MIN(salary), AVG(salary)
+FROM employees
+WHERE department_id = 60;
+
+SELECT MIN(last_name), MAX(last_name)
+FROM employees;
+
+SELECT MIN(hire_date), MAX(hire_date)
+FROM employees;
+
+SELECT COUNT(*), COUNT(department_id), COUNT(DISTINCT department_id)
+FROM employees;
+
+--count:null 제외한 수 
+SELECT AVG(commission_pct), AVG(NVL(commission_pct,0)), SUM(commission_pct)/count(commission_pct), 
+count(commission_pct), sum(commission_pct),COUNT(NVL(commission_pct,0))
+FROM employees;
+
+--GROUP BY 절의 사용
+SELECT department_id, SUM(salary), count(*)
+FROM employees
+GROUP BY department_id
+ORDER BY 1; --몇번째 콜럼 
+
+SELECT department_id, job_id,SUM(salary), count(*)
+FROM employees
+GROUP BY department_id,job_id
+ORDER BY 1, job_id;
+
+SELECT department_id, job_id,SUM(salary), count(*)
+FROM employees
+WHERE department_id >= 50
+GROUP BY department_id,job_id
+ORDER BY 1, job_id;
+
+--HAVING절
+
+SELECT department_id, job_id,SUM(salary), count(*)
+FROM employees
+GROUP BY department_id,job_id
+HAVING COUNT(*) <> 1
+ORDER BY 1, job_id;
+
+--GROUP 함수의 중첩
+SELECT MAX(SUM(salary))
+FROM employees
+GROUP BY department_id;
+
+SELECT MAX(SUM(salary))
+FROM employees
+GROUP BY department_id;
+
+--JOIN
+SELECT employee_id, last_name, department_name
+FROM employees, departments;
+
+--1) EQUI-JOIN
+SELECT e.employee_id, e.last_name, e.department_id, d.department_id, d.location_id
+FROM employees e, departments d
+WHERE e.department_id = d.department_id;
+
+SELECT employees.employee_id, employees.last_name, employees.department_id, departments.department_id, departments.location_id
+FROM employees , departments 
+WHERE employees.department_id = departments.department_id;
+
+--Departments 와 location를 EQUI 조인을 활용해서 데이터 조회
+SELECT d.department_name, d.department_id, l.location_id, l.city
+FROM departments d, locations l
+WHERE d.location_id = l.location_id;
+
+--NON-EQUI JOIN
+SELECT *
+FROM job_grades;
+
+SELECT e.employee_id, e.last_name, e.salary, j.grade_level
+FROM employees e, job_grades j
+WHERE e.salary BETWEEN j.lowest_sal AND HIGHEST_SAL;
+
+SELECT *
+FROM jobs;
+
+--실습
+--문제1)  사원들의 이름, 부서번호, 부서명을 출력하라
+SELECT e.first_name||' '||last_name, e.department_id, d.department_id, d.department_name
+FROM employees e, departments d
+WHERE e.department_id = d.department_id;
+
+--문제2) 사원이름과 부서명과 월급을 출력하는데 월급이 3000 이상인 사원을 출력하라
+SELECT e.first_name||' '||e.last_name, d.department_name, e.salary
+FROM employees e, departments d
+where e.department_id = d.department_id and e.salary >= 3000;
+
+--문제1
+SELECT e.first_name, e.job_id, e.department_id,d.department_id, d.department_name,e.commission_pct
+from employees e, departments d
+where e.department_id = d.department_id and e.commission_pct IS NOT NULL;
+
+
+--문제2
+select e.first_name, e.job_id, e.department_id, d.department_id, d.department_name, d.location_id 
+from employees e, departments d
+where e.department_id = d.department_id and d.location_id =2500;
+
+--문제3
+select e.last_name, e.department_id, d.department_id, department_name
+from employees e, departments d
+where e.department_id = d.department_id and e.last_name like '%A%';
+
+--문제4
+select e.first_name, e.department_id, d.department_id, d.department_name, e.salary
+from employees e, departments d
+where e.department_id = d.department_id and e.salary >=3000;
+
+--문제5
+select e.first_name, e.department_id, d.department_id , d.department_name, e.salary
+from employees e, departments d
+where e.department_id = d.department_id and e.salary between 3000 and 5000;
+
+--문제6
+select e.first_name, e.department_id, d.department_id, d.department_name, e.hire_date
+from employees e, departments d
+where e.department_id = d.department_id and d.department_name = INITCAP('Accounting');
+
+select *
+FROM departments;
+
+select *
+from departments;
