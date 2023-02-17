@@ -1,0 +1,146 @@
+--시험
+
+--문제1
+SELECT e.employee_id, e.last_name, d.department_id, d.department_name
+from employees e join departments d ON(e.department_id = d.department_id);
+
+
+--문제2
+SELECT d.department_id, department_name, city
+from departments d join locations l on(d.location_id = l.location_id);
+
+--문제3
+select department_name
+from departments
+where department_name ='IT';
+
+select e.employee_id, e.last_name, e.job_id, d.department_name
+from employees e join departments d on(e.department_id =d.department_id)
+where department_name = ( select department_name
+                            from departments
+                            where department_name ='IT');
+   
+ --문제4
+ CREATE table PROF(
+ PROFNO number(4) primary key,
+ NAME varchar2(15) NOT NULL unique,
+ ID varchar2(15) not null,
+ HIREDATE date,
+ PAY NUMBER(4),
+ DEPTNO NUMBER(4));
+
+
+
+drop table 
+ 
+ --문제5
+ CREATE table PROF(
+ PROFNO number(4) primary key,
+ NAME varchar2(15) NOT NULL unique,
+ ID varchar2(15) not null,
+ HIREDATE date,
+ PAY NUMBER(4),
+ DEPTNO NUMBER(4),
+ CONSTRAINT prof_deptno_fk foreign key(deptno) REFERENCES departments(department_id));
+ 
+ 
+ 
+ 
+ --문제6
+ SELECT *
+ from user_constraints
+ WHERE table_name ='PROF';
+ 
+--문제7
+--(1)
+ insert into PROF
+ values(1001,'차은우','c1001','17/03/01',800,10);
+ 
+ insert into PROF
+ values(1002,'김제니','k1001','20/11/28',750,20);
+ 
+ insert into PROF
+ values(1003,'손담비','s1003','21/03/02',null,null);
+
+--(2) 
+ UPDATE PROF
+ SET PAY = 1100
+ where PROFNO =1001;
+ 
+ --(3)
+ commit;
+ 
+ select *
+ from PROF;
+
+--문제8
+--(1)
+CREATE INDEX PROF_ID_IX on PROF(ID);
+--(2)
+select table_name, index_name
+FROM user_indexes
+WHERE table_name = 'PROF';
+--(3)
+--3개
+
+--문제9
+--(1)
+ALTER table PROF
+ADD (GENDER char(3));
+--(2)
+ALTER table PROF
+MODIFY NAME varchar2(20);
+
+--문제10
+--(1)
+CREATE view PROF_LIST_VU
+AS
+  SELECT PROFNO 교수번호, NAME 교수이름, ID
+  from PROF;
+
+ --(2)
+CREATE SYNONYM P_VU
+FOR PROF_LIST_VU;
+
+--(3)
+CREATE SEQUENCE prof_no_seq
+                INCREMENT BY 1
+                START WITH 1005
+                NOCACHE
+                NOCYCLE;
+
+--문제11
+--(1)
+CREATE OR REPLACE VIEW PROF_LIST_VU
+AS
+    SELECT PROFNO 교수번호, NAME 교수이름, ID, HIREDATE 입사일
+    from PROF;
+
+--(2) 
+ALTER SEQUENCE prof_no_seq
+            INCREMENT BY 2
+             NOCACHE
+             NOCYCLE;
+             
+--문제12
+--(1)
+create user TEST
+INDENTIFIED BY t2460;
+
+--(2)
+GRANT CONNECT TO TEST;
+GRANT RESOURCE TO TEST;
+--(3)
+GRANT create view TO TEST;
+--(4)
+GRANT SELECT on HR.PROF_LIST_VU TO TEST;
+             
+--문제13
+--(1)
+DROP TABLE PROF PURGE;
+
+--(2)
+ --다 없어짐
+
+
+commit;
