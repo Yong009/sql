@@ -1,0 +1,41 @@
+--COFFEE 테이블
+CREATE TABLE coffee(
+coffee_id number PRIMARY KEY,
+coffee_menu varchar2(30) not null,
+coffee_price number(4),
+coffee_explain varchar2(1000),
+coffee_sales number(3));
+
+INSERT INTO coffee
+values (1,'아이스아메리카노', 5000, '아주 쓴맛', 3);
+
+INSERT INTO coffee
+values (2,'냉차', 3000, '아주 단맛', 100);
+
+INSERT INTO coffee
+values (3,'딸기라떼', 8000, '아주 딸기맛', 10);
+
+select *
+from coffee;
+
+commit;
+
+
+CREATE TABLE emp
+AS
+select *
+FROM employees;
+
+CREATE TABLE dept
+AS
+select *
+from departments;
+
+select *
+from emp;
+
+drop table dept;
+
+
+select *
+from emp;
