@@ -1,0 +1,65 @@
+CREATE TABLE std(
+std_id number(8) Primary key,
+std_name varchar2(15) not null,
+std_major varchar2(30),
+std_point number(2,1));
+
+DESC std;
+drop table std;
+INSERT INTO std 
+values(221, '장원영', '역사교육', 4.4);
+
+INSERT INTO std 
+values(222, '태연', '컴퓨터공학과', 3.4);
+
+INSERT INTO std 
+values(223, '소희', '영어영문학과', 2.9);
+INSERT INTO std 
+values(224, '티파니', '철학과', 2.3);
+INSERT INTO std 
+values(225, '유빈', '기계공학과', 3.8);
+
+commit;
+
+SELECT std_major, sum(std_point) AS total, avg(std_point)
+FROM std
+GROUP BY std_major;
+
+--MEMBER TABLE--
+--ID, PW, PHONE, ADDR, GRADE
+CREATE TABLE member(
+member_id varchar2(20) primary key,
+member_pw varchar2(20) not null,
+member_phone char(13),
+member_addr varchar2(100),
+member_grade char(1) default 'N'
+);
+
+desc member;
+
+Select *
+From member
+Where member_id = ?;
+
+INSERT INTO member VALUES('yedam001', 'yedam001', '010-1234-1234','대구시 중앙대로 403','N');
+
+select *
+from member;
+commit;
+
+Update member
+set member_phone = ?
+where member_id = ?;
+
+CREATE TABLE sgroup(
+sgroup_id varchar2(10) PRIMARY KEY,
+sgroup_name varchar2(15) not null,
+sgroup_hiredate DATE,
+sgroup_email varchar2(15),
+sgroup_age number(2));
+
+select * from constraint ALL_CONSTRAINTS
+where TABLE_NAME = 'EMPLOYEES';
+
+drop table sgroup;
+DESC sgroup;
