@@ -1,0 +1,211 @@
+desc member;
+
+desc car;
+
+desc condition;
+
+ CREATE TABLE MEMBER 
+   (member_id VARCHAR2(10) PRiMary key, 
+	member_pw VARCHAR2(10), 
+	member_name VARCHAR2(15), 
+	member_number VARCHAR2(13)
+   );
+
+drop table member;
+
+drop table rent;
+
+drop table car;
+drop table member;
+drop table condition;
+
+
+
+
+CREATE TABLE CONDITION 
+   (car_number NUMBER(4) references car(car_number), 
+	car_year NUMBER(4), 
+	car_count NUMBER(3), 
+	car_oil NUMBER(5), 
+	car_enoil NUMBER(3), 
+	car_tire NUMBER(4)
+   );
+
+Insert into CONDITION values (1,2010,30,100,50,15);
+Insert into CONDITION values (2,2018,40,80,50,15);
+Insert into CONDITION values (3,2022,60,140,50,25);
+Insert into condition values (4,2020,50,150,70,30);
+Insert into condition values (5,2014,80,100,60,20);
+Insert into condition values (6,2017,60,70,40,20);
+
+select *
+from price p join car c
+on(p.car_number = c.car_number) join rent r on(p.car_number = r.car_number)
+where r.member_id = 'new1';
+
+
+select * from rent r join car c on(r.car_number = c.car_number) where member_id = 1;
+
+CREATE TABLE CAR 
+   (CAR_NUMBER NUMBER(4) not NUll primary key, 
+	CAR_NAME VARCHAR2(20), 
+	CAR_KIND VARCHAR2(10)
+   );
+
+
+
+desc car;
+
+select *
+from user_constraints;
+
+drop table condition;
+
+
+drop table car;
+
+Insert into CAR  values (1,'아반떼','승용차');
+Insert into CAR values (2,'레이','경차');
+Insert into CAR  values (3,'쏘렌토','suv');
+Insert into car values (4,'제너시스','승용차');
+Insert into car values (5,'스포티지','suv');
+Insert into car values (6,'마티즈','경차');
+
+select * 
+from car c join condition d on(c.car_Number = d.car_number) where car_number = 1;
+commit;
+
+
+select car_name
+from car
+where car_number = 1;
+
+select *
+from car;
+
+select *
+from condition;
+
+commit;
+
+select *
+from rent;
+
+select *
+from condition
+where car_number = 0;
+
+delete from car
+where car_name = 'bmw'; 
+
+delete from condition
+where car_number = 1;
+
+Insert into MEMBER values ('ge','ge','관리자',null);
+Insert into MEMBER values ('new1','new1','민지','010-1234-5678');
+
+select constraint_name,table_name,r_constraint_name
+from user_constraints
+where constraint_name = 'GE.SYS_C007200';
+
+select * from car;
+
+CREATE table rent(
+rent_id number(3),
+car_number number(4) references car(car_number),
+rent_date varchar2(10),
+rent_distance number(3),
+rent_reserved char(1),
+member_id varchar2(10) references member(member_id)
+);
+
+Insert into rent values(1,1,'2023-02-24',30,'O','new1');
+
+select *
+from rent;
+
+select * from member;
+
+select * from rent;
+desc member;
+drop table rent;
+select * from rent;
+
+commit;
+desc rent;
+commit;
+
+Insert into rent values(null,1,null,null,null,null);
+Insert into rent values(null,2,null,null,null,null);
+Insert into rent values(null,3,null,null,null,null);
+Insert into rent values(null,4,null,null,null,null);
+Insert into rent values(null,5,null,null,null,null);
+Insert into rent values(null,6,null,null,null,null);
+ 
+ 
+관리자
+사람 볼떄 
+
+
+delete from rent
+where car_number =5;
+
+desc rent;
+
+
+select *
+from rent;
+
+
+select * from member;
+select * from member where member_id = 'new1';
+select * from rent where member_id = 'new1';
+commit;
+
+
+create table price(
+car_number number(3) references car(car_number),
+price_price number(6),
+price_priceOil number(6)
+);
+
+select * from car;
+
+select * from rent;
+
+select * from price;
+
+select * from price p join car c 
+on(p.car_number = c.car_number) 
+join rent r on(r.car_number = c.car_number) 
+where r.member_id = 'new1';
+
+
+
+drop table price;
+select * from price p join car c on(p.car_number = c.car_number) join rent r on(r.car_number = c.car_number) where member_id = 'new1';
+
+insert into price values( 1,20000,(select rent_distance*100 from rent where car_number= 1));
+insert into price values( 2,10000,(select rent_distance*100 from rent where car_number = 2));
+insert into price values( 3,30000,(select rent_distance*100 from rent where car_number = 3));
+insert into price values( 4,35000,(select rent_distance*100 from rent where car_number = 4));
+insert into price values( 5,25000,(select rent_distance*100 from rent where car_number = 5));
+insert into price values( 6,8000,(select rent_distance*100 from rent where car_number = 6));
+
+desc price;
+
+select *
+from price;
+select rent_distance*100 from rent where car_number = 1;
+commit;
+select * from rent;
+
+select * from price;
+
+select *
+from price
+where car_number= 2;
+
+
+select *
+from car;
