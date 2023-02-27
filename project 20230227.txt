@@ -1,0 +1,133 @@
+select *
+from price;
+
+desc price;
+
+CREATE TABLE PRICE 
+   (	CAR_NUMBER NUMBER(3,0), 
+	PRICE_PRICE NUMBER(6,0), 
+	PRICE_PRICEOIL NUMBER(6,0)
+   );
+   
+select *
+from price;
+
+drop table price;
+
+create table insurance(
+in_insurance varchar2(10) DEFAULT 'NO',
+car_number number(3) references car(car_number),
+in_price number(6),
+member_id varchar2(10) references member(member_id) 
+);
+
+insert into insurance values('NO',1,10000,null);
+insert into insurance values('NO',2,10000,null);
+insert into insurance values('NO',3,10000,null);
+insert into insurance values('NO',4,10000,null);
+insert into insurance values('No',5,10000,null);
+insert into insurance values('NO',6,10000,null);
+
+commit;
+
+select In_insurance from insurance where member_id = 'new1';
+
+
+select *
+from insurance;
+
+select * from insurance where member_id = 'new1';
+
+select * from insurance;
+
+select nvl(member_id,0) nvl from insurance; 
+
+select nvl(member_id,0) nvl,In_price, IN_insurance,car_number from insurance where member_id = 
+
+update insurance set in_insurance = 'YES' where member_id = 'new1';
+drop table insurance;
+
+select *
+from insurance;
+
+
+commit;
+drop table insurance;
+
+desc insurance;
+
+CREATE table rent(
+rent_id number(3),
+car_number number(4) references car(car_number),
+rent_date varchar2(10),
+rent_distance number(3),
+rent_reserved char(1),
+member_id varchar2(10) references member(member_id)
+);
+
+drop table rent;
+
+Insert into rent values(null,1,null,null,null,null);
+Insert into rent values(null,2,null,null,null,null);
+Insert into rent values(null,3,null,null,null,null);
+Insert into rent values(null,4,null,null,null,null);
+Insert into rent values(null,5,null,null,null,null);
+Insert into rent values(null,6,null,null,null,null);
+
+commit;
+
+drop table rent;
+
+insert into price values( 1,20000,null);
+insert into price values( 2,10000,null);
+insert into price values( 3,30000,null);
+insert into price values( 4,35000,null);
+insert into price values( 5,25000,null);
+insert into price values( 6,8000,null);
+
+drop table price;
+
+commit;
+
+select *
+from price;
+
+select rent_distance from rent where car_number= 1;
+
+commit;
+
+drop table price;
+
+commit;
+
+select *
+from insurance;
+
+desc insurance;
+
+update insurance set member_id = '0';
+
+select *
+from insurance;
+
+commit;
+
+create table income(
+income_date date(10),
+income_income number(10)
+);
+
+desc income;
+
+Update Insurance set in_insurance = 'n', member_id=null  where car_number= 1; 
+
+
+select * from insurance;
+
+commit;
+
+select *
+from income;
+
+select sum(income_income)
+from income;
