@@ -1,0 +1,49 @@
+create sequence notice_seq;
+
+create table notice(
+notice_id number primary key,
+notice_writer varchar2(100) not null, --작성자
+notice_title varchar2(300) not null, --제목.
+notice_subject varchar2(1000) not null, --내용.
+create_date date default sysdate, --등록일자.
+hit_count number default 0, --조회수.
+attach varchar2(100) --첨부파일.
+);
+
+--시퀀스.
+select notice_seq.nextval from dual;
+
+--게시글 등록.
+insert into notice (notice_id, notice_writer, notice_title,notice_subject)
+values(notice_seq.nextval,'user03','등록테스트입니다3','공지사항 등록테스트입니다3');
+
+commit;
+
+select * from notice;
+
+
+select *
+from notice;
+
+delete from notice 
+where notice_id=16;
+
+--2배로 불리기--
+insert into notice (notice_id,notice_writer,notice_title,notice_subject)
+select notice_seq.nextval, notice_writer,notice_title,notice_subject
+from notice;
+
+select *
+from notice;
+
+
+select notice_id, notice_writer, notice_title
+from(select rownum rn, notice_id, notice_writer, notice_title
+       from (select notice_id, notice_writer, notice_title
+               from notice
+               order by notice_id desc) a
+            where rownum <= (3*10)) b
+where b.rn> (3-1)*10;
+
+
+commit;
