@@ -1,0 +1,24 @@
+select * from notice;
+
+update notice set notice_title ='등록',
+		notice_subject='코딩'
+		where notice_id =105;
+        
+    commit;
+    
+  select * from members;
+  
+  select * from member;
+  
+  select * from members
+  where id = 'user1'
+  and passwd = '1111';
+  
+  --request header : jsession=adfadaadfadf
+  commit;
+  
+  alter table members add auth varchar2(10) default 'User' not null;
+  
+  insert into members values('admin', '관리자', '1111', 'admin@email', 'Admin');
+  
+  commit;
