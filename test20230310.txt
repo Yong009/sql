@@ -1,0 +1,61 @@
+create table product(
+product_code varchar2(10) primary key,
+product_name varchar2(100) not null,
+origin_price number not null,
+sale_price number,
+product_desc varchar2(1000) not null,
+like_it number(3,1) not null,
+image varchar2(100)
+);
+
+commit;
+
+select * from product;
+
+insert into product values
+('CF0001', '과테말라 안티구아',5000,4500,'과테말라 안티구아 커피입니다', 4.5,'과테말라 안티구아.jpg');
+
+insert into product values
+('CF0002', '니카라쿠아 더치원두',4000,3000,'니카라쿠아 더치원두 커피입니다', 4.0,'니카라쿠아 더치원두.jpg');
+insert into product values
+('CF0003', '브라질산토스',6000,3500,'브라질산토스 커피입니다', 5.0,'브라질산토스.jpg');
+insert into product values
+('CF0004', '에티오피아 예가체프',7000,5500,'에티오피아 예가체프 커피입니다', 3.5,'에티오피아 예가체프.jpg');
+insert into product values
+('CF0005', '케냐 오크라톡신',2500,2000,'케냐 오크라톡신 커피입니다', 2.5,'케냐 오크라톡신.jpg');
+insert into product values
+('CF0006', '코스타리카 따라주',4000,2500,'코스타리카 따라주입니다', 1.5,'코스타리카 따라주.jpg');
+
+update product set product_desc ='니카라구아 더치원두입니다',product_name='니카라구아 더치원두',image='니카라구아 더치원두.jpg'
+where product_code = 'CF0002';
+
+update product set image='니카라구아 더치원두.jpg'
+where product_code ='CF0002';
+commit;
+
+
+select * from product where product_code ='CF0001';
+
+select * from (
+select * from product order by like_it desc) a
+where rownum <= 4;
+
+create table book (
+  book_code varchar2(15) primary key,
+  book_title varchar2(50) not null,
+  book_author varchar2(50) not null,
+  book_press varchar2(50) not null,
+  book_desc varchar2(500),
+  book_price int
+);
+
+insert into book values('bk0001','어린왕자','생텍쥐베리','갈리마르','어린왕자입니다',7000);
+insert into book values('bk0002','해리포터','조앤롤링','블룸즈베리 퍼블리싱','해리포터입니다',6000);
+insert into book values('bk0003','용의자X의헌신','히가시노게이고','재인','용의자입니다',8000);
+insert into book values('bk0004','총균쇠','다이아몬드','문학사상사','총균쇠입니다',9000);
+insert into book values('bk0005','역사란무엇인가','카','까치','역사입니다',5000);
+
+commit;
+
+
+select * from book;
