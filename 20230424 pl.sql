@@ -1,0 +1,441 @@
+set serveroutput on
+
+variable p_annual_sal number
+
+execute :p_annual_sal := 5000;
+
+declare
+    v_sal number(9,2) := &p_annual_sal;
+begin
+    v_sal := v_sal/12;
+    dbms_output.put_line('The monthly salary is ' ||TO_Char(v_sal,'$999.99'));
+end;    
+/
+
+declare  
+    v_job varchar2(9);
+    v_count number(9,2) not null default 0;
+    v_max constant number(10) := v_count + 100;
+    v_copy v_count%TYPE := 102;
+begin
+    dbms_output.put_line(v_job);
+    dbms_output.put_line(v_count);
+    dbms_output.put_line(v_max);
+    dbms_output.put_line(v_copy);
+end;
+/
+
+create or replace procedure test_pro
+is 
+
+begin
+
+    dbms_output.put_line('오늘 하루');
+    
+end;
+/
+
+drop procedure test_pro;
+
+DECLARE
+    v_sal NUMBER(7,2) := 60000;
+    v_comm NUMBER(7,2) := v_sal * .20;
+    v_message VARCHAR2(255):=' eligible for commission';
+BEGIN
+    DECLARE
+        v_sal NUMBER(7,2) := 50000;
+        v_comm NUMBER(7,2) := 0;
+        v_total_comp NUMBER(7,2) := v_sal+ v_comm;
+    BEGIN
+        dbms_output.put_line('v_total_comp :' || v_total_comp);
+        v_message := 'CLERK not '||v_message;
+        dbms_output.put_line('1) ' || v_message);
+        v_comm := v_sal * .30; 
+    END;
+        -- dbms_output.put_line('v_total_comp :' || v_total_comp);
+        v_message := 'SALESMAN'||' '||v_message;
+       dbms_output.put_line('2) '||' '|| v_message);
+END;
+/
+
+
+declare
+    v_emp_all number(2); -- 전체 사원수
+    v_emp_dept_50 number(2); -- 부서가 50인 사원수
+begin
+    select count(employee_id) 
+    into v_emp_all
+    from employees;
+    
+    
+    dbms_output.put_line('All Emp : ' || v_emp_all);
+    
+    select count(employee_id) 
+    into v_emp_dept_50
+    from employees
+    where department_id = 50;
+    dbms_output.put_line('Dept 50 Emp : ' || v_emp_dept_50);
+    
+    
+
+end;
+/
+
+declare
+    v_result number;
+begin
+    select employee_id
+    into v_result
+    from employees
+    where department_id = 0;
+end;
+/
+
+
+-- 특정한 부서의 신입사원을 등록
+-- 사원번호는 현재 등록된 사원번호보다 1
+-- 급여는 해당 부서의 현재 최저 급여을 등록
+
+declare
+    v_deptno number := &deptno;
+    v_empId number;
+    v_ename employees.last_name%type := '&ename';
+    v_sal number;
+begin
+    select max(employee_id)
+    into v_empId
+    from employees;
+    
+    v_empId := v_empId +1;
+    
+    insert into employees(employee_id,last_name,email,hire_date,job_id)
+    values(v_empId, v_ename, (v_ename||'@yedam.com'),sysdate,'IT_PROG');
+    
+    select min(salary)
+    into v_sal
+    from employees
+    where department_id = v_deptno;
+    
+    update employees
+    set salary = v_sal
+        
+    where employee_id = v_empId;
+    
+    dbms_output.put_line('등록된 신입사원의 사원번호는 ' || v_empId || ' 입니다.');
+end;
+/
+
+select * 
+from employees 
+where employee_id =301;
+
+/*
+1. 사원번호를 입력(치환변수사용&)할 경우
+    사원번호, 사원이름, 부서이름을
+    출력하는 PL/sql을 작성하시오 */
+    
+declare
+    v_empno employees.employee_id%TYPE;
+    v_last_name employees.last_name%TYPE;
+    v_dept_name departments.department_name%TYPE;
+begin
+    select e.employee_id, e.last_name, d.department_name
+    into v_empno, v_last_name, v_dept_name
+    from employees e join departments d on(e.department_id = d.department_id)
+    where employee_id = &eid;
+    dbms_output.put_line('사원번호 :' ||' '|| v_empno ||' '|| '사원이름 : ' ||' '|| v_last_name ||' '|| '부서이름 : ' ||' '|| v_dept_name );    
+end;
+/
+
+/*
+2. 사원번호를 입력(치환변수사용)할 경우
+사원이름, 급여, 연봉->(급여*12 +(nvl(급여,0)*nvl(커미션퍼센트,0)*12))
+을 출력하는 PL/sql*/
+
+--풀이 1 select문 하나만 사용
+
+
+
+declare
+    v_ename employees.last_name%TYPE;
+    v_sal employees.salary%TYPE;
+    v_annual_sal employees.salary%TYPE;
+begin
+        select last_name, salary, salary*12 +(NVL(salary, 0) * NVL(commission_pct, 0) * 12)
+        into v_ename, v_sal, v_annual_sal
+        from employees
+        where employee_id = &eid;
+
+    DBMS_output.put_line('사원 이름: ' || v_ename ||' '|| '급여 : ' ||' '|| v_sal ||' '|| '연봉 : ' ||' '|| v_annual_sal);
+end;
+/
+
+
+-- 풀이2 별도의 연산과정
+declare
+         v_ename employees.last_name%TYPE;
+        v_sal employees.salary%TYPE;
+        v_comm employees.salary%TYPE;
+        v_annual_sal employees.salary%TYPE;
+begin
+    select last_name, salary, commission_pct
+    into v_ename, v_sal, v_comm
+    from employees
+    where employee_id = &eid;
+    
+    v_annual_sal := v_sal * 12 + (nvl(v_sal,0) * nvl(v_comm, 0) * 12);
+    DBMS_output.put_line('사원 이름: ' || v_ename ||' '|| '급여 : ' ||' '|| v_sal ||' '|| '연봉 : ' ||' '|| v_annual_sal);
+end;
+/
+
+
+
+begin
+    update employees
+    set salary = salary + 100
+    where department_id = 50;
+    
+    dbms_output.put_line('연봉 인상 결과 : ' || sql%rowcount);
+end;
+/
+
+-- 특정 사원의 매니저 정보를 출력하세요
+-- 단, 매니저가 존재하지 않을 경우 별도의 안내 메시지를 출력하세요.
+
+declare     
+    v_empid employees.employee_id%TYPE :=&eid;
+    v_mgr employees.manager_id%TYPE;
+    v_mgr_name employees.last_name%TYPE;
+begin
+    select manager_id
+    into v_mgr
+    from employees
+    where employee_id = v_empid;
+    
+    if v_mgr IS NULL then 
+        DBMS_output.put_line('매니저가 존재하지 않습니다');
+    else 
+        select last_name
+        into v_mgr_name
+        from employees
+        where employee_id = v_mgr;
+        
+        DBMS_output.put_line('매니저는 ' || v_mgr_name || '입니다.');
+    end if;
+end;
+/
+
+-- 사원번호가 무엇인지 확인하고 업무가 무엇인지 확인
+
+declare
+    v_empid employees.employee_id%TYPE := &사원번호;
+    v_job employees.job_id%TYPE;
+    v_sal employees.salary%TYPE;
+begin
+    select job_id
+    into v_job
+    from employees
+    where employee_id = v_empid;
+    
+    if v_job like '%IT%' then
+        v_sal := 10000;
+        dbms_output.put_line('사원의 업무는 ' || v_job || '이고 급여는 '|| v_sal || '입니다.');
+        else 
+         select salary
+         into v_sal
+         from employees
+         where employee_id = v_empid;
+         
+         dbms_output.put_line('사원의 업무는 ' || v_job || '이고 급여는 '|| v_sal || '입니다.');
+    end if;
+    
+        
+end;
+/
+
+-- 나이를 입력받아 상대방의 아동, 초등학생, 중학생, 고등학생, 성인
+
+declare
+    v_age number(3,0) not null := &나이;
+    
+
+begin -- 오름차순 순으로 써야함
+    if v_age < 8 then -- 8미만의 정수값
+        dbms_output.put_line('미취학 아동입니다.');
+    elsif v_age < 14 then -- 8 이상 14 미만 
+        dbms_output.put_line('초등학생입니다.');
+    elsif v_age < 17 then -- 14 이상 17 미만
+        dbms_output.put_line('중학생입니다.');
+    elsif v_age <20 then -- 17 이상 20 미만
+        dbms_output.put_line('고등학생입니다.');
+    else -- 20 이상
+        dbms_output.put_line('성인입니다.');
+    end if;
+
+end;
+/
+
+/*
+3-2
+사원번호를 입력할 경우
+입사일이 2000년 이후(2000년 포함)이면 'New employee'출력
+        2000년 이전이면 'Career employee' 출력
+단, DBMS_output.put_line ~ 은 한번만 사용
+*/
+
+declare
+    v_empno employees.employee_id%TYPE;
+    v_hiredate employees.hire_date%TYPE;
+    v_chat varchar2(30);
+
+begin
+    select hire_date
+    into v_hiredate
+    from employees
+    where employee_id = &eid;
+    
+    if to_char(v_hiredate,'yyyy') >= '2000' 
+    -- if v_hiredate >= TO_DATE('2000-01-01','yyyy-MM-dd')
+    
+    then v_chat :='New employee' ;
+    
+    else v_chat :='Career employee';
+    
+    end if;
+    
+    dbms_output.put_line('경력 : ' || v_chat);
+    
+    
+
+end;
+/
+
+
+
+
+/*
+6.
+사원번호를 입력할 경우
+해당 사원을 삭제하는 PL/SQL을 작성하세요.
+단, 해당사원이 없는 경우 "해당 사원이 없습니다." 출력
+*/
+
+create table test_emp
+as 
+    select * from employees;
+
+select * from test_emp;
+
+--풀이 1
+DECLARE
+    v_empid employees.employee_id%type := &사원번호;
+    v_count number;
+
+begin
+    select count(*)
+    into v_count
+    from test_emp
+    where employee_id = v_empid;
+    
+    if v_count = 0 then
+        dbms_output.put_line('해당 사원이 없습니다.');
+    else
+        delete from test_emp
+        where employee_id = v_empid;
+    end if;    
+        
+end;
+/
+
+--풀이2(커서사용)
+    
+begin
+    
+    delete from test_emp
+    where employee_id = &eid;
+    
+    if SQL%ROWCOUNT = 0 then
+    dbms_output.put_line('해당 사원이 없습니다.');
+        
+    end if;
+end;
+/
+
+
+select * from test_emp;
+
+
+-- 1부터 10까지 모든 정수의 합을 구해서 출력
+-- 기본 LOOP
+DECLARE
+    v_counter number(2,0) := 1;
+    v_sum number(2,0) := 0;
+begin
+    loop
+        v_sum := v_sum + v_counter;
+        v_counter := v_counter + 1;
+        exit when v_counter > 10;
+    end loop;
+        dbms_output.put_line('결과 : ' || v_sum);
+        
+end;
+/
+
+-- for LOOP
+declare
+    v_sum number(2,0) := 0;
+begin
+    for i in 1..10 loop
+        v_sum := v_sum + i;
+    
+    end loop;
+    dbms_output.put_line('결과 : ' || v_sum);
+
+end;
+/
+
+-- WHILE LOOP
+declare
+    v_counter number(2,0) := 1;
+    v_sum number(2,0) := 0;
+begin
+    while v_counter <= 10 loop
+        v_sum := v_sum + v_counter;
+        v_counter := v_counter + 1;
+    end loop;
+    dbms_output.put_line('결과 : '|| v_sum);
+end;
+/
+
+-- 기본 LOOP <-> while loop 
+
+--1) while loop -> 기본 loop
+declare
+    v_counter number(2,0) := 1;
+    v_sum number(2,0) := 0;
+begin
+     loop
+        v_sum := v_sum + v_counter;
+        v_counter := v_counter + 1;
+        exit when v_counter > 10;  -- 부등호 정반대
+    end loop;
+    dbms_output.put_line('결과 : '|| v_sum);
+end;
+/
+
+--2) 기본 loop -> while loop
+
+declare
+    v_counter number(2,0) := 1;
+    v_sum number(2,0) := 0;
+begin
+     while v_counter <= 10 loop 
+        v_sum := v_sum + v_counter;
+        v_counter := v_counter + 1;
+        
+    end loop;
+    dbms_output.put_line('결과 : '|| v_sum);
+end;
+/
+
+rollback;
