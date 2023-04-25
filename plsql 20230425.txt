@@ -1,0 +1,568 @@
+set serveroutput on
+
+--1에서 50까지의 정수 중 3의 배수가 몇개인지 확인
+
+-- 1) 기본 loop
+declare
+    v_num number(2,0) := 0;
+    v_count number(2,0) := 0;
+begin
+    loop
+        v_num := v_num + 1;
+        exit when v_num > 50;
+        
+        if mod(v_num,3) = 0 
+        then v_count := v_count +1;
+        
+        end if;
+        
+        end loop;
+        
+        dbms_output.put_line(v_count);
+             
+         
+
+end;
+/
+      
+
+-- 2) while loop
+
+   declare
+    v_num number(2,0) := 0;
+    v_count number(2,0) := 0;
+begin
+    while  v_num < 50 loop
+        
+         v_num := v_num +1;
+        
+        if mod(v_num,3) = 0 
+        then v_count := v_count +1;
+        
+        end if;
+           
+        end loop;
+        
+        dbms_output.put_line(v_count);
+             
+end;
+/
+   
+   -- 3) for loop
+   
+   declare
+    
+     v_count number(2,0) := 0;
+   
+   begin
+    for i in 1..50 loop
+        if mod(i,3) = 0 then
+        v_count := v_count +1;
+    
+    end if;
+   end loop;
+    dbms_output.put_line(v_count);
+    
+   end;
+   /
+   
+   /*
+   
+   1. 다음과 같이 출력되도록 하세요.
+   *
+   **
+   ***
+   ****
+   ******
+     
+   
+   */
+  -- 기본 loop 
+   declare
+    v_star varchar2(10) := '';
+    v_count number(1,0) :=1;
+  begin
+    loop 
+        v_star := v_star ||'*';
+        dbms_output.put_LINE(v_star);
+        v_count := v_count + 1; 
+        
+        exit when v_count > 5;
+    end loop;
+    
+  end;
+  /
+  
+  -- WHILE LOOP
+  declare
+    v_star varchar2(10) := '';
+    v_count number(1,0) :=1;
+  begin
+    while v_count <= 5 loop 
+        v_star := v_star ||'*';
+        dbms_output.put_LINE(v_star);
+        v_count := v_count + 1; 
+        
+        
+    end loop;
+    
+  end;
+  /
+  
+  -- for loop
+  
+  declare
+   v_star varchar2(10) := '';
+    
+  
+  begin
+    for i in 1..5 loop
+       v_star := v_star || '*'; 
+        dbms_output.put_line(v_star);
+        
+    end loop;
+    
+  end;
+  /
+
+ -- 문제 2
+  /*
+    구구단 2 ~ 9단까지 출력
+   */
+   /*
+    구구단 1 ~ 9단까지 출력
+    단, 홀수단만 출력
+    */
+  
+  -- for loop  
+  declare
+    
+  begin
+    for i in 2..9 loop
+        for j in 1..9 loop
+            dbms_output.put_line(i||'*'||j||'='||i*j);
+        end loop;
+       end loop; 
+  end;
+  /
+  
+  -- 기본 loop
+  declare
+   v_num number(2,0) := 1;
+   v_dan number(2,0) := 2;
+  begin
+    loop  
+        v_num := 1;
+        loop
+           dbms_output.put_line(v_dan||'X'||v_num||'='||v_dan*v_num);
+           v_num := v_num +1;
+           exit when v_num > 9;
+        end loop;
+        v_dan := v_dan + 1;
+        exit when v_dan > 9;
+    end loop;
+  
+  end;
+  /
+  
+  -- while loop
+   declare
+   v_num number(2,0) := 1;
+   v_dan number(2,0) := 2;
+  begin
+    while v_dan <= 9 loop  
+        v_num := 1;
+        while v_num <= 9 loop
+           dbms_output.put_line(v_dan||'X'||v_num||'='||v_dan*v_num);
+           v_num := v_num +1;
+           
+        end loop;
+        v_dan := v_dan + 1;
+        
+    end loop;
+  
+  end;
+  /
+  
+  
+  -- 기본 loop
+    declare
+   v_num number(2,0) := 1;
+   v_dan number(2,0) := 1;
+  begin
+    loop  
+        v_num := 1;
+        loop
+           if mod(v_dan,2) !=0 then
+           dbms_output.put_line(v_dan||'X'||v_num||'='||v_dan*v_num);
+           end if;
+           v_num := v_num +1;
+           exit when v_num > 9;
+        end loop;
+        v_dan := v_dan + 1;
+        exit when v_dan > 9;
+    end loop;
+  
+  end;
+  /
+    
+  -- while loop  
+    
+     declare
+   v_num number(2,0) := 1;
+   v_dan number(2,0) := 1;
+  begin
+    while v_dan <= 9 loop  
+        v_num := 1;
+       while v_num <= 9 loop
+           if mod(v_dan,2) !=0 then
+           dbms_output.put_line(v_dan||'X'||v_num||'='||v_dan*v_num);
+           end if;
+           v_num := v_num +1;
+           
+        end loop;
+        v_dan := v_dan + 1;
+        
+    end loop;
+  
+  end;
+  /
+    
+  
+  -- for loop
+  declare
+    
+  begin
+    for i in 1..9 loop
+        for j in 1..9 loop
+            if mod(i,2) != 0 then 
+            dbms_output.put_line(i||'*'||j||'='||i*j);
+            end if;
+        end loop;
+       end loop; 
+  end;
+  /
+
+
+-- record 
+declare
+    TYPE emp_recode_type IS RECORD 
+        (emp_id employees.employee_id%TYPE,
+        emp_name varchar2(2000),
+        emp_salary number(20,2) not null := 1000 );
+     emp_record emp_recode_type;
+     
+     
+begin
+    select employee_id, first_name, salary
+    into emp_record
+    from employees
+    where employee_id = 200;
+    
+    DBMS_output.put_line(emp_record.emp_id);
+    DBMS_output.put_line(emp_record.emp_name);
+    DBMS_output.put_line(emp_record.emp_salary);
+end;
+/
+
+declare
+    type test_record_type IS RECORD
+        ( test_id number );
+        test_record test_record_type;
+        
+    type empid_record_type is record
+        ( eid employees.employee_id%TYPE);
+        empid_record empid_record_type;
+
+begin
+    select employee_id
+    into empid_record
+    from employees
+    where last_name = 'King';
+    
+    test_record.test_id := empid_record.eid;
+    
+    dbms_output.put_line('사원 번호 : ' || test_record.test_id);
+    
+
+end;
+/
+
+declare
+    emp_record employees%ROWTYPE;
+
+begin
+    select *
+    into emp_record 
+    from employees
+    where employee_id = 100;
+    
+    dbms_output.put_line(emp_record.employee_id);
+    dbms_output.put_line(emp_record.last_name);
+    
+end;
+/
+
+declare
+    TYPE number_table_type is table of number
+        index by binary_integer;
+    v_num_list number_table_type;    
+
+begin
+    v_num_list(1234) := 98765;
+    
+    dbms_output.put_line('INDEX '|| v_num_list.FIRST|| ':'|| v_num_list(1234));
+    
+
+end;
+/
+
+-- -25 ~ 25 사이의 홀수를 따로 담은 테이블 
+
+declare
+    type number_table_type is table of number
+        index by binary_integer;
+        v_total_data number_table_type;
+
+        v_count number(2,0) := 1;
+begin
+    for v_num in -25..25 loop
+    if mod(v_num,2) <> 0 then
+        v_total_data(v_num) := v_num;
+    end if;
+    end loop;
+ 
+    dbms_output.put_line(v_total_data.count);
+    
+    for i in v_total_data.first .. v_total_data.last loop
+        if v_total_data.exists(i) then
+        dbms_output.put_line(v_count || ' ) ' || v_total_data(i));
+        v_count := v_count + 1;
+        end if;
+    end loop;
+end;
+/
+
+
+-- employees 테이블 모든 값을 하나의 테이블 타입으로 만들어보세요.
+-- employee_id : primary key( unique, not null ) + 0, 양수
+--              => MIN, MAX
+DECLARE
+    v_min employees.employee_id%TYPE;
+    v_max employees.employee_id%TYPE;
+    v_count NUMBER(1,0);
+    emp_record employees%ROWTYPE;
+    
+    TYPE emp_table_type IS TABLE OF employees%ROWTYPE
+        INDEX BY PLS_INTEGER;
+    
+    emp_table emp_table_type;
+BEGIN
+    -- 현재 employees 테이블의 전체 데이터를 조회 => 커서를 이용해서 처리
+    -- 사원번호 최저, 최고
+    SELECT MIN(employee_id), MAX(employee_id)
+    INTO v_min, v_max
+    FROM employees;
+    
+    --사원번호를 기반으로 각 사원번호 조회
+    FOR v_emp_id IN v_min .. v_max LOOP
+    
+        SELECT COUNT(*)
+        INTO v_count
+        FROM employees
+        WHERE employee_id = v_emp_id;
+        
+        IF v_count = 0 THEN
+            CONTINUE;
+        END IF;
+        
+        SELECT *
+        INTO emp_record
+        FROM employees
+        WHERE employee_id = v_emp_id;
+        
+        emp_table(v_emp_id) := emp_record;
+    END LOOP;
+    
+    FOR v_index IN emp_table.FIRST .. emp_table.LAST LOOP
+        IF emp_table.EXISTS(v_index) THEN
+            DBMS_OUTPUT.PUT_LINE(emp_table(v_index).employee_id);
+            DBMS_OUTPUT.PUT_LINE(emp_table(v_index).first_name);
+            DBMS_OUTPUT.PUT_LINE(emp_table(v_index).job_id);
+        END IF;
+    END LOOP;
+END;
+/
+
+declare
+    cursor emp_cursor is
+        select employee_id, last_name
+        from employees;
+       
+    
+    v_eid employees.employee_id%TYPE;
+    v_ename employees.last_name%TYPE;
+    v_counter number(1,0) := 1;    
+begin
+    open emp_cursor;
+    
+    fetch emp_cursor into v_eid, v_ename;
+    
+    
+        
+    dbms_output.put_line(v_eid || ' , ' || v_ename);
+    
+    close emp_cursor;
+    
+    dbms_output.put_line('======================================');
+    
+    open emp_cursor;
+    loop
+        fetch emp_cursor into v_eid, v_ename;
+        dbms_output.put_line(v_eid || ' , ' || v_ename);
+       v_counter := v_counter +1;
+       exit when v_counter > 5;
+    end loop;
+    close emp_cursor;
+    
+    dbms_output.put_line('======================================');
+    
+    open emp_cursor;
+    
+    loop
+        fetch emp_cursor into v_eid, v_ename;
+        exit when emp_cursor%NOTFOUND;
+        dbms_output.put_line(v_eid || ' , ' || v_ename);
+    end loop;
+    close emp_cursor;
+    
+end;
+/
+
+-- employees 테이블 모든 값을 하나의 테이블 타입으로 만들어보세요.
+-- employee_id : primary key( unique, not null ) + 0, 양수
+--              => MIN, MAX
+
+declare
+    emp_record employees%ROWTYPE;
+     
+    type emp_table_type is table of employees%rowtype
+        index by pls_integer;
+        
+        emp_table emp_table_type;
+      
+     
+    cursor emp_cursor is
+        select *
+        from employees;
+        
+
+begin
+    -- 1. 현재 employees 테이블의 전체 데이터를 조회
+    
+        
+    open emp_cursor;
+    
+    loop
+    fetch emp_cursor into emp_record;
+        dbms_output.put_line(emp_record.employee_id || ' , ' || emp_record.last_name || ' , ' || emp_record.first_name || ' , ' || emp_record.job_id);
+        
+     exit when emp_cursor%notfound;
+     
+     emp_table(emp_record.employee_id) := emp_record;
+    end loop;
+    
+    close emp_cursor;
+    
+   
+end;
+/
+
+--1 
+
+declare
+    
+    cursor dept_emp_cursor is
+        select last_name, salary, (salary*12+(salary*nvl(commission_pct,0)*12)) as annual_sal
+        from employees 
+        where department_id = &부서번호;
+     
+     dept_emp_info dept_emp_cursor%rowtype;
+    
+begin
+    open dept_emp_cursor;
+    
+    loop
+    fetch dept_emp_cursor into dept_emp_info;
+    exit when dept_emp_cursor%notfound;
+    
+    dbms_output.put('사원이름 : ' || dept_emp_info.last_name);
+    dbms_output.put(', 급여 : ' || dept_emp_info.salary);
+    dbms_output.put_line(', 연봉 : ' || dept_emp_info.annual_sal);
+    end loop;
+    
+    close dept_emp_cursor;
+end;
+/
+
+--2
+
+declare
+
+
+ cursor dept_emp_cursor is
+        select e.last_name, e.hire_date, d.department_name
+        from employees e join departments d on(e.department_id = d.department_id)
+        where e.department_id = &부서번호;
+
+    dept_emp_info dept_emp_cursor%rowtype;
+
+begin
+    open dept_emp_cursor;
+    
+    loop
+    fetch dept_emp_cursor into dept_emp_info;
+    exit when dept_emp_cursor%notfound;
+    
+    dbms_output.put('사원이름 : ' || dept_emp_info.last_name);
+    dbms_output.put(', 입사일자 : ' || dept_emp_info.hire_date);
+    dbms_output.put_line(', 부서명 : ' || dept_emp_info.department_name);
+    
+    end loop;
+    
+    close dept_emp_cursor;
+
+
+end;
+/
+
+--3
+declare
+  cursor  emp_cursor is 
+    select employee_id, last_name, hire_date
+    from employees;
+    
+    emp_info emp_cursor%rowtype;
+
+begin
+    open emp_cursor;
+    
+    loop
+    
+    fetch emp_cursor into emp_info;
+    if to_char(emp_info.hire_date,'yyyy') <'2001'
+    then 
+    insert into test01 values(emp_info.employee_id, emp_info.last_name,emp_info.hire_date);
+    else
+    insert into test02 values(emp_info.employee_id, emp_info.last_name,emp_info.hire_date);
+    end if;
+    exit when emp_cursor%notfound;
+    end loop;
+    close emp_cursor;
+    
+    
+end;
+/
+select *
+from test02;
+
