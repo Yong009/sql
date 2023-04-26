@@ -1,0 +1,720 @@
+--1 
+
+declare
+    
+    cursor dept_emp_cursor is
+        select last_name, salary, (salary*12+(salary*nvl(commission_pct,0)*12)) as annual_sal
+        from employees 
+        where department_id = &부서번호;
+     
+     dept_emp_info dept_emp_cursor%rowtype;
+    
+begin
+    open dept_emp_cursor;
+    
+    loop
+    fetch dept_emp_cursor into dept_emp_info;
+    exit when dept_emp_cursor%notfound;
+    
+    dbms_output.put('사원이름 : ' || dept_emp_info.last_name);
+    dbms_output.put(', 급여 : ' || dept_emp_info.salary);
+    dbms_output.put_line(', 연봉 : ' || dept_emp_info.annual_sal);
+    end loop;
+    
+    close dept_emp_cursor;
+end;
+/
+
+--2
+
+declare
+    v_deptid departments.department_id%TYPE := &부서번호;
+
+ cursor dept_emp_cursor is
+        select e.last_name, e.hire_date, d.department_name
+        from employees e join departments d on(e.department_id = d.department_id)
+        where e.department_id = v_deptid;
+
+    dept_emp_info dept_emp_cursor%rowtype;
+
+begin
+    open dept_emp_cursor;
+    
+    loop
+    fetch dept_emp_cursor into dept_emp_info;
+    exit when dept_emp_cursor%notfound;
+    
+    dbms_output.put('사원이름 : ' || dept_emp_info.last_name);
+    dbms_output.put(', 입사일자 : ' || dept_emp_info.hire_date);
+    dbms_output.put_line(', 부서명 : ' || dept_emp_info.department_name);
+    
+    end loop;
+    
+    close dept_emp_cursor;
+
+
+end;
+/
+
+--3
+-- 1)employees 테이블에서 사원번호, 이름, 입사일을 조회
+-- 2) 입사일을 기준으로 나눠짐
+-- 2.1) 입사일 <= 2000년 -> insert into test01
+-- 2.2) 입사일 > 2000년 -> insert into test02
+
+
+declare
+  cursor  emp_cursor is 
+    select employee_id, last_name, hire_date
+    from employees;
+    
+    emp_info emp_cursor%rowtype;
+
+begin
+    open emp_cursor;
+    
+    loop
+    
+    fetch emp_cursor into emp_info;
+    if to_char(emp_info.hire_date,'yyyy') <'2001'
+    then 
+    insert into test01 values(emp_info.employee_id, emp_info.last_name,emp_info.hire_date);
+    else
+    insert into test02 values(emp_info.employee_id, emp_info.last_name,emp_info.hire_date);
+    end if;
+    exit when emp_cursor%notfound;
+    end loop;
+    close emp_cursor;
+    
+    
+end;
+/
+select *
+from test02;
+
+set serveroutput on
+
+
+
+
+declare
+    cursor emp_cursor is
+        select employee_id, last_name
+        from employees;
+
+begin
+    for emp_record in emp_cursor loop
+    
+    dbms_output.put_line(emp_record.employee_id || ' , ' || emp_record.last_name);
+    
+    end loop;
+
+end;
+/
+
+
+-- cursor for loop
+declare
+    cursor emp_cursor is
+        select employee_id, last_name, job_id
+        from employees
+        where department_id = 0;
+    
+begin
+    for emp_record in emp_cursor loop
+        if emp_record.employee_id%rowcount = 0 then
+        dbms_output.put('사원이름 : ' || emp_record.employee_id ||' ,');
+        dbms_output.put('이름 : ' || emp_record.last_name||' ,');
+        dbms_output.put_line('업무 : ' || emp_record.job_id);
+        end if;
+    end loop;
+
+end;
+/
+
+
+declare
+    cursor emp_cursor is
+        select employee_id, last_name, job_id
+        from employees
+        where department_id = &부서번호;
+    
+        emp_record emp_cursor%rowtype;
+begin
+    open emp_cursor;
+    
+    loop
+        fetch emp_cursor into emp_record;
+        exit when emp_cursor%notfound;
+        dbms_output.put('사원이름 : ' || emp_record.employee_id ||' ,');
+        dbms_output.put('이름 : ' || emp_record.last_name||' ,');
+        dbms_output.put_line('업무 : ' || emp_record.job_id);
+    end loop;
+    
+    if emp_cursor%rowcount  = 0 then
+        dbms_output.put_line('해당 부서에는 사원이 존재하지 않습니다.');
+    
+    end if;
+    close emp_cursor;
+    
+end;
+/
+
+
+--1
+declare
+    cursor emp_cursor is
+        select last_name, salary, (salary*12+(salary*nvl(commission_pct,0)*12)) as annul
+        from employees
+        where department_id = &부서번호;
+
+
+begin
+    for v_emp_info in emp_cursor loop
+        dbms_output.put_line('사원번호 : ' || v_emp_info.last_name );
+        dbms_output.put_line('급여 : ' || v_emp_info.salary );
+        dbms_output.put_line('연봉 : ' || v_emp_info.annul );
+    
+    end loop;
+
+
+end;
+/
+
+--2
+declare
+    cursor emp_cursor is
+        select e.last_name, e.hire_date, d.department_name
+        from employees e join departments d on(e.department_id = d.department_id)
+        where e.department_id = &부서번호;
+
+
+begin
+    for v_emp_info in emp_cursor loop
+        dbms_output.put_line('사원이름 : ' || v_emp_info.last_name );
+        dbms_output.put_line('입사일자 : ' || v_emp_info.hire_date );
+        dbms_output.put_line('부서명 : ' || v_emp_info.department_name );
+    
+    end loop;
+
+
+end;
+/
+
+--3
+
+
+
+declare
+  cursor emp_cursor is 
+    select employee_id, last_name, hire_date
+    from employees;
+       
+
+begin
+    
+    for emp_record in emp_cursor loop
+        if to_char(emp_record.hire_date,'yyyy') <'2001'
+        then 
+        insert into test01 values(emp_record.employee_id, emp_record.last_name,emp_record.hire_date);
+        else
+        insert into test02 values(emp_record.employee_id, emp_record.last_name,emp_record.hire_date);
+        end if;
+        
+    end loop;
+    
+       
+end;
+/
+
+-- 명시적 커서를 사용하는 방법
+-- 1) OPEN -> fetch -> close : 해당 커서의 데이터 유무랑 상관없이 커서의 속성을 사용하는 경우
+-- 2) 커서 for loop : 해당 커서의 데이터가 반드시 존재
+--            => 해당 커서의 데이터가 없는 경우 실행되지 않음
+
+
+
+-- 매개변수를 통한 커서
+declare
+       
+    cursor dept_emp_cursor 
+        (v_dptno number)
+    
+    is
+        select *
+        from employees
+        where department_id = v_dptno;
+    
+    
+
+begin
+
+    for emp_info in dept_emp_cursor(50) loop
+        dbms_output.put_line(emp_info.last_name);
+        
+    end loop;
+    dbms_output.put_line('---------------------------');
+     for emp_info in dept_emp_cursor(80) loop
+        dbms_output.put_line(emp_info.last_name);
+    
+    end loop;
+end;
+/
+
+
+DECLARE
+    -- 전체 부서에 대한 정보
+    CURSOR dept_cursor IS
+        SELECT department_id, department_name
+        FROM departments;
+        
+    -- 특정 부서에 속한 사원의 정보
+    CURSOR emp_cursor
+        (v_deptno NUMBER)
+    IS
+        SELECT *
+        FROM employees
+        WHERE department_id = v_deptno;
+    
+    emp_info emp_cursor%ROWTYPE;  --rowtype : fetch 횟수
+BEGIN
+    FOR dept_info IN dept_cursor LOOP
+    
+        DBMS_OUTPUT.PUT_LINE('부서 : ' || dept_info.department_name);
+        
+        OPEN emp_cursor(dept_info.department_id);
+        
+        LOOP
+            FETCH emp_cursor INTO emp_info;
+            EXIT WHEN emp_cursor%NOTFOUND;
+            
+            DBMS_OUTPUT.PUT('사원이름 : ' || emp_info.last_name);
+            DBMS_OUTPUT.PUT(', 업무 : ' || emp_info.job_id);
+            DBMS_OUTPUT.PUT_LINE(', 입사일 : ' || emp_info.hire_date);
+        END LOOP;
+        
+        -- 해당 커서의 데이터가 존재하는 지 확인
+        IF emp_cursor%ROWCOUNT = 0 THEN
+            DBMS_OUTPUT.PUT_LINE('해당 부서에는 소속된 사원이 없습니다.');
+        END IF;
+        
+        CLOSE emp_cursor;
+        DBMS_OUTPUT.PUT_LINE('');
+    END LOOP;
+END;
+/
+
+
+--where curren of , for update(잠금)
+
+
+DECLARE
+    CURSOR sal_cursor IS
+    SELECT salary
+    FROM employees
+    WHERE department_id = 90
+    FOR UPDATE OF salary NOWAIT;
+
+BEGIN
+    FOR emp_record IN sal_cursor LOOP
+    UPDATE employees
+        SET salary = emp_record.salary * 1.10
+        WHERE CURRENT OF sal_cursor;
+    END LOOP;
+
+
+END;
+/
+
+/*      이름있는 예외         숫자로 관리,예외           사용자 정의
+ declare    X              별도이름 exception      어떤 이름 exception
+ begin      x                    x               if  then raise 어떤 이름  end if
+exception   o              when 별도이름 then      when 어떤이름 then
+                               handler                 
+*/
+
+-- 미리 정의된 예외 -> 이름 존재하는 예외
+
+declare
+    v_emp_id employees.employee_id%TYPE;
+
+begin
+    select employee_id
+    into v_emp_id
+    from employees
+    where department_id =&부서번호;
+
+    DBMS_output.put_line('프로그램이 종료되었습니다');
+    
+exception  --치환변수는 예외로 안걸러짐( 미리 실행되었기 때문에 ) -> 컴파일할때
+    when NO_DATA_FOUND then      
+        dbms_output.put_line('해당 부서에 속한 사원이 없습니다.');
+    when TOO_MANY_ROWS then
+        dbms_output.put_line('요구한 결과보다 데이터가 많습니다.');
+    when others then -- 위에 두개 제외한 나머지
+        dbms_output.put_line('기타 예외 사항이 발생했습니다');
+end;
+/
+                                
+-- 미리 정의하지 않은 예외 -> 존재는 하되 이름없이 번호로 관리되는 예외
+
+declare
+    e_delete_dept_fail exception;
+    pragma exception_init(e_delete_dept_fail, -2292);  -- '-'붙어야함
+    
+begin
+    delete from departments
+    where department_id = &부서번호;
+    
+    dbms_output.put_line('정상적으로 부서가 삭제되었습니다.');
+exception
+    when e_delete_dept_fail then
+        dbms_output.put_line('해당 부서에 속한 사원이 존재합니다.');
+end;
+/
+
+-- 사용자 정의 예외
+declare
+    e_no_dept_info exception;
+begin
+    delete from departments
+    where department_id = &부서번호;
+    
+    if SQL%ROWCOUNT = 0 then 
+        RAISE e_no_dept_info;
+    end if;
+    
+    dbms_output.put_line('정상적으로 부서정보가 삭제되었습니다.');
+exception
+    when e_no_dept_info then
+        dbms_output.put_line('해당 부서의 정보가 존재하지 않습니다.');
+
+end;
+/
+
+declare
+
+begin
+    delete from departments
+    where department_id = &부서번호;
+    
+    dbms_output.put_line('정상적으로 부서가 삭제되었습니다.');
+    
+exception
+    when NO_DATA_FOUND then
+        dbms_output.put_line('데이터가 존재하지 않습니다.');
+    when others then
+        dbms_output.put_line('오류번호 : ' || SQLcode);
+        dbms_output.put_line('오류번호 : ' || SQLERRM);
+
+end;
+/
+
+-- SQLCODE, SQLERRM : INSERT 절이랑 사용할 수 없음.
+
+/*
+    insert into log_table
+    values (sqlcode, sqlerrm);   --> 이렇게는 안됨
+    =========================
+    v_error_code := sqlcode;
+    v_error_message := sqlerrm;
+    
+    insert into log_table
+    values(v_error_code, v_error_message);
+*/
+
+
+begin
+    declare
+        v_emp_record employees%rowtype;
+    begin
+        select *
+        into v_emp_record
+        from employees
+        where department_id  = &부서번호;
+    
+    exception
+        when no_data_found then
+            dbms_output.put_line('현재 부서에는 근무하는 사원이 없습니다.');
+    end;
+    
+    dbms_output.put_line('안쪽 PL/SQL이 종료되었습니다.');
+exception
+    when too_many_rows then
+        -- dbms_output.put_line('반환 결과가 한 행을 초과했습니다.');
+        RAISE_APPLICATION_ERROR(-20201, 'TEST ERROR MESSAGE !!!');
+    when others then
+        dbms_output.put_line('기타 예외 상황이 발생했습니다.');
+end;
+/
+
+/*
+사원(employees) 테이블에서
+사원번호를 입력(&사용) 받아
+10% 인상된 급여로 수정하는 pL/sql을 작성하시오.
+단, 2000년(포함) 이후 입사한 사원은 갱신하지 않고
+"2000년 이후 입사한 사원입니다." <-exception 절 사용
+라고 출력되도록 하시오.
+
+    1) 특정 사원의 급여를 10% 인상
+    2) 단, 2000년 포함 이후 입사한 사원일 경우 단순 안내
+    
+    첫번째 : select 사원정보(사원번호, 입사일)
+        -> 입사일을 기준으로 2000년 이전에 update 이후는 메시지 출력
+        
+    두번째 : 입력받은 사원번호와 입사일이 2000년 이전인 경우 경우 update
+            -> update의 결과가 0인 경우 2000년(포함) 이후 사원일 경우가 높음
+
+*/
+
+declare
+    emp_ex exception;
+    
+    v_empno employees.employee_id%type := &사원번호;
+
+        cursor emp_cursor is
+            select *
+            from employees
+            where employee_id =v_empno;
+
+    emp_record emp_cursor%rowTYPE;
+
+begin
+        
+        for emp_record in emp_cursor loop
+           
+            if to_char(emp_record.hire_date)<'2001' then
+                update employees set salary = emp_record.salary*1.1
+                where employee_id =v_empno;
+                dbms_output.put_line('성공하였습니다.');
+                end if;
+             if to_char(emp_record.hire_date)>='2001' then  
+             raise emp_ex;
+                
+            end if;
+        end loop;
+        
+exception       
+    when emp_ex then
+    dbms_output.put_line('2000년 이후 입사한 사원입니다.');
+    when others then
+    dbms_output.put_line('기타 예외.');
+end;
+/
+
+
+-- 풀이방식 1
+declare
+    e_no_emp_data exception;
+    
+    v_emp_id employees.employee_id%Type := &사원번호;
+    v_hiredate employees.hire_date%type;
+
+begin
+    select hire_date
+    into v_hiredate
+    from employees
+    where employee_id = v_emp_id;
+    
+    
+    if v_hiredate < to_date('2000-01-01','yyyy-MM-dd') then
+     update employees
+     set salary = salary*1.1
+     where employee_id = v_emp_id;
+    else
+        raise e_no_emp_data;
+        
+    end if;
+    
+exception
+ when e_no_emp_data then
+    dbms_output.put_line('2000년 이후 입사한 사원입니다.');
+end;
+/
+
+select * from employees; 
+
+rollback;
+
+--풀이방식 2
+
+declare
+    e_no_emp_data exception;
+begin
+    update employees
+    set salary = salary * 1.1
+    where employee_id = &사원번호
+     and To_char(hire_date,'yyyy') < '2000';
+     
+    if SQL%rowcount = 0 then
+        raise e_no_emp_data;
+    end if;
+    
+exception
+    when e_no_emp_data then
+    dbms_output.put_line('등록되지 않은 사원이거나 2000년(포함) 이후에 입사한 사원입니다.');
+    -- => exception 절 사용
+end;
+/
+
+rollback;
+
+
+declare
+    emp_ex exception;
+    
+    v_empno employees.department_id%type := &부서번호;
+
+        cursor emp_cursor is
+            select *
+            from employees;
+            
+            
+
+    emp_record emp_cursor%rowTYPE;
+
+begin
+        
+        for emp_record in emp_cursor loop
+                       
+                update employees set salary = emp_record.salary*1.1
+                where department_id =v_empno;
+            
+                
+             if SQL%rowcount = 0 then  
+             raise emp_ex;
+                
+            end if;
+        end loop;
+        
+exception       
+    when emp_ex then
+    dbms_output.put_line('해당 부서에는 사원이 없습니다.');
+    
+end;
+/
+
+
+-- 풀이
+-- 1) cursor - select , loop
+-- 2) cursor 내의 데이터를 기반으로 update
+-- 3) cursor의 rowcount 이용해서 해당 부서에 사원의 여부 체크
+
+declare
+    cursor dept_cursor is
+        select *
+        from employees
+        where department_id =&부서번호;
+
+    v_emp_record dept_cursor%ROWTYPE;
+    
+    e_dept_no_emp exception;
+begin
+    OPEN dept_cursor;
+    
+    loop
+        fetch dept_cursor into v_emp_record;
+        exit when dept_cursor%notfound;
+        
+        -- 실제로 실행하고자 하는 명령어
+        update employees
+        set salary = salary*1.1
+        where employee_id = v_emp_record.employee_id;
+        --where current of dept_cursor;
+        
+       end loop; 
+        
+        if dept_cursor%rowcount = 0 then
+          raise e_dept_no_emp;
+          
+        end if;
+    
+        
+    close dept_cursor;
+
+
+exception
+    when e_dept_no_emp then
+    dbms_output.put_line('해당 부서에는 사원이 없습니다.');
+end;
+/
+
+rollback;
+
+--프로시저 in
+create or replace procedure test_procedure
+(v_message in varchar2 )
+is
+-- 선언부(declare)
+    e_test_data exception;
+begin
+    --v_message := '값을 변경했습니다.';
+    if v_message is null then
+        raise e_test_data;
+    end IF;
+    dbms_output.put_line(v_message);
+    
+exception
+    when e_test_data then
+        dbms_output.put_line('메시지를 입력하지 않았습니다.');
+    
+end;
+/
+
+
+
+-- 호출 방법 1
+EXECUTE test_procedure('Today is ...');
+
+
+-- 호출 방법 2
+declare
+    v_temp varchar2(10 char) := '추가 데이터';
+
+begin
+    test_procedure(null);
+    test_procedure(v_temp);
+    test_procedure(v_temp ||' '|| 1000);
+end;
+/
+
+-- 프로시저 out
+
+create or replace procedure query_emp_info
+(v_id in employees.employee_id%Type,
+ v_name out employees.first_name%Type,
+ -- v_sal out employees.salary%TYpe,
+ v_sal in out employees.salary%Type,
+ v_commission_pct out employees.commission_pct%TYpe)
+is
+
+begin
+    dbms_output.put_line('v_name : ' || v_name);
+    dbms_output.put_line('v_sal : ' || v_sal);
+    dbms_output.put_line('v_commission_pct : ' || v_commission_pct);
+    
+    select first_name, salary, commission_pct
+    into v_name, v_sal, v_commission_pct
+    from employees
+    where employee_id = v_id;
+
+end query_emp_info;   -- 선택사항 ( 머가 끝났는지 그냥 적어둔거 )
+/
+
+declare
+    v_eid employees.employee_id%TYpe := &사원번호;
+    v_ename employees.first_name%TYPE;
+    v_sal employees.salary%Type not null := 1000;
+    v_comm employees.commission_pct%TYPe;
+
+begin
+    query_emp_info(v_eid, v_ename, v_sal, v_comm);
+    
+    dbms_output.put_line('사원번호 : ' || v_eid);
+    dbms_output.put_line('- 이름 : ' || v_ename);
+    dbms_output.put_line('- 급여 : ' || v_sal);
+    dbms_output.put_line('- 상여금 : ' || v_comm);
+end;
+/
+
+drop procedure test_procedure;
