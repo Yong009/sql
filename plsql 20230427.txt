@@ -1,0 +1,590 @@
+set serveroutput on
+
+--1 ( 변수 가급적이면 권장 )
+
+create or replace procedure yedam_ju
+(v_num number)
+is
+
+begin
+
+    dbms_output.put_line(substr(v_num,1,6) || '-' || substr(v_num,7,1) || '******');
+end;
+/
+execute yedam_ju(9501011667777);
+
+--2
+create or replace procedure yedam_emp
+(v_eid employees.employee_id%TYPE
+)
+is
+ v_name employees.last_name%type;
+   v_name2 varchar2(10) :='';
+begin
+    select last_name
+    into v_name
+    from employees
+    where employee_id = v_eid;
+   
+    for i in 1..(length(v_name)-1) loop
+    v_name2 := v_name2||'*';
+   
+    end loop;
+    dbms_output.put_line(substr(v_name,1,1)|| v_name2);
+    
+    -- rpad : 출력하는데 길이만큼 출력하는데 오른쪽 공백에 *
+    -- lpad : 출력하는데 길이만큼 출력하는데 왼쪽 공백에 *
+    -- dbms_output.put_line(rpad(substr(v_name,1,1), length(v_name,'*'));
+end;
+/
+execute yedam_emp(176);
+
+--3
+create or replace procedure get_emp
+(v_deptno employees.department_id%Type)
+
+is
+    cursor emp_cursor is
+        select employee_id, last_name
+        from employees
+        where department_id = v_deptno;
+    
+    emp_ex exception;
+    
+    emp_record emp_cursor%rowtype;
+begin
+    
+    open emp_cursor;
+    
+    loop
+    
+        fetch emp_cursor into emp_record;
+        exit when emp_cursor%notfound;
+        dbms_output.put_line(emp_record.employee_id ||' , '|| emp_record.last_name );
+            
+    end loop;
+     
+       if emp_cursor%rowcount = 0 then
+       raise emp_ex;
+       end if;     
+       
+       close emp_cursor;
+       
+       
+exception
+    when emp_ex then
+    dbms_output.put_line('해당 부서에는 사원이 없습니다.');
+    
+end get_emp;
+/
+
+execute get_emp(30);
+
+--4
+
+create or replace procedure y_update
+(v_eid employees.employee_id%TYpE,
+v_salary employees.salary%TYPE )
+
+is
+  
+  e_emp_ex exception;  
+
+begin
+    update employees set salary = salary + (salary *(v_salary/100))
+    where employee_id = v_eid;
+    
+    if sql%rowcount = 0 then
+    raise e_emp_ex;
+    end if;
+
+exception
+    when e_emp_ex then
+    dbms_output.put_line('No search employee!!');
+
+end;
+/
+
+execute y_update(105,20);
+
+select * from employees where employee_id = 100;
+
+select * from employees;
+
+
+-- '01012341234' -> '010-1234-1234'
+
+create or replace procedure format_phone
+(v_phone_no in out varchar2 )
+
+is
+    --선언
+begin
+    v_phone_no := substr(v_phone_no,1,3) || '-'|| substr(v_phone_no,4,4) ||'-'|| substr(v_phone_no,8,4);
+
+end;   
+/
+
+declare
+    v_phone varchar(13) := '&연락처';
+    
+begin
+    dbms_output.put_line('원본 : ' || v_phone);
+    format_phone(v_phone);
+    dbms_output.put_line('변환 후 : ' || v_phone);
+end;
+/
+
+-- 이런 방법도 있긴하다
+variable g_phone varchar2;
+
+execute :g_phone := '01098765432';
+
+execute format_phone(:g_phone);
+
+print g_phone;
+
+--function
+
+create function get_emp_info
+( v_eid employees.employee_id%TYPE )
+    return boolean
+
+is
+    v_count number;
+    v_result boolean;
+begin
+    select count(*)
+    into v_count
+    from employees
+    where employee_id = v_eid;
+
+    if v_count = 0 then
+        v_result := false;
+    else
+        v_result := true;
+    end if;
+    
+    return v_result;
+end;
+/
+
+declare
+    v_func_result boolean := true;
+    v_message varchar2(100);
+begin
+    v_func_result := get_emp_info('&사원번호');
+    
+    if v_func_result then
+        v_message := '해당 사원이 근무합니다.';
+    else
+        v_message := '해당 사원이 근무하지 않습니다.';
+    end if;
+    
+    dbms_output.put_line(v_message);
+end;
+/
+
+select get_emp_info(100) from dual;
+
+create or replace function get_emp_info
+( v_deptno departments.department_id%TYPE )
+        return number
+
+is
+    v_count number;
+
+begin
+    select count(employee_id)
+    into v_count
+    from employees
+    where department_id = v_deptno;
+    
+    return v_count;
+end;
+/
+
+declare 
+    v_result number;
+
+begin
+    v_result := get_emp_info('&부서번호');
+    dbms_output.put_line('사원 수 : ' || v_result);
+end;
+/
+
+
+select distinct department_id 부서번호, get_emp_info(department_id) "사원 수"
+from employees;
+
+-- 사원의 full name을 반환하는 함수
+
+create or replace function emp_name
+(v_eid employees.employee_id%type)
+
+RETURN varchar2
+
+is
+    v_full varchar2(30);
+    
+begin
+    select last_name ||' '|| first_name 이름
+    into v_full
+    from employees
+    where employee_id = v_eid;
+    return v_full;
+    
+exception
+    when no_data_found then
+        return '해당 사원이 존재하지 않습니다.';  --db창안에서 넣어서 보기위해서 return
+    when too_many_rows then
+        return '해당 사원에 해당하는 정보가 많습니다.';
+    
+end;
+/
+
+select employee_id "사원 번호" ,emp_name(employee_id) "사원의 full name"
+from employees;
+
+select emp_name(999) from dual;  -- 하나 출력할땐 dual  -- employees 할때 where절 안쓰면 값이 중복돼서 여러개 발생
+
+
+--1
+create or replace function ydsum
+(v_num number)
+    return number
+   
+    
+is
+    v_sum number(3,0):= 0;
+    
+begin
+    for i in 1..v_num loop
+    v_sum := v_sum +i; 
+    
+    end loop;
+    
+    return v_sum;
+    dbms_output.put_line(v_sum);
+end;
+/
+
+execute dbms_output.put_line(ydsum(10));
+
+--2
+create or replace function ydinc
+(v_empno employees.employee_id%TYPE)
+    return number
+
+is
+    v_salary number;
+begin
+    select salary
+    into v_salary
+    from employees
+    where employee_id = v_empno;
+    
+    if v_salary <= 5000 then
+        return v_salary+(v_salary*0.2);
+    elsif v_salary <= 10000 then
+        return v_salary+(v_salary*0.15);
+    elsif v_salary <= 20000 then
+        return v_salary+(v_salary*0.1);
+    else 
+        return v_salary;
+    end if;       
+    
+end;
+/
+
+select last_name, salary, ydinc(employee_id)
+from employees;
+
+--3
+create or replace function yd_func
+(v_deptno employees.employee_id%type)
+    return number
+is
+    v_sal employees.salary%type;
+    v_com employees.commission_pct%type;
+    
+begin
+    select salary, commission_pct
+    into v_sal, v_com
+    from employees
+    where employee_id = v_deptno;
+    if v_com is null then
+    return v_sal*12;
+    else
+    return (v_sal+ (v_sal*v_com))*12;
+    end if;
+end;
+/
+
+select last_name, salary, yd_func(employee_id) 연봉
+from employees;
+
+--4 
+
+
+
+create or replace function subname
+(v_last employees.last_name%type)
+    return VARCHAR2
+    
+is
+    v_name employees.last_name%type;
+    v_name2 varchar2(100) :='';
+begin
+    select last_name
+    into v_name
+    from employees
+    where last_name = v_last;
+    
+    
+    
+    for i in 1..(length(v_name)-1) loop
+      v_name2 := v_name2 || '*';      
+    
+    end loop;
+    
+    return substr(v_name,1,1)||v_name2;
+    
+end;
+/
+
+select last_name, subname(last_name)
+from employees;
+
+--5
+create or replace function y_dept
+(v_eid employees.employee_id%type)
+    return varchar2
+is
+    v_deptname varchar2(100);
+    e_dept exception;
+    e_emp exception;
+    v_count number;
+begin
+    select d.department_name
+    into v_deptname
+    from employees e join departments d on(e.department_id = d.department_id)
+    where e.employee_id = v_eid;
+
+    if v_deptname is null then
+        raise e_dept;
+    end if;
+    return v_deptname;    
+        
+        
+    
+    
+--    select count(employee_id)
+--    into v_count
+--    from employees e join departments d on(e.department_id = d.department_id)
+--    where e.employee_id = v_eid;
+--    
+--    if v_count = 0 then
+--        raise e_emp;
+--    end if;
+exception
+    when no_data_found  then
+        return '해당 사원이 존재하지 않습니다.';
+    when e_emp then
+        return '현재 소속부서가 존재하지 않습니다.';
+
+end;
+/
+
+execute dbms_output.put_line(y_dept(178));
+
+
+SELECT employee_id, y_dept(employee_id)
+FROM   employees;
+
+--풀이
+
+-- 1)
+
+-- 1. WHILE LOOP 사용
+CREATE FUNCTION ydsum
+( v_num NUMBER )
+RETURN NUMBER
+IS
+    v_count NUMBER(10,0) := 0;
+    v_total NUMBER(10,0) := 0;
+BEGIN
+    WHILE v_count <= v_num LOOP
+        v_total := v_total + v_count;
+        
+        v_count := v_count + 1;
+    END LOOP;
+    
+    RETURN v_total;
+END;
+/
+
+-- 2. FOR LOOP 사용
+CREATE FUNCTION ydsum
+( v_num NUMBER )
+RETURN NUMBER
+IS
+    v_total NUMBER(10,0) := 0;
+BEGIN
+    FOR i IN 1 .. v_num LOOP
+	
+        v_total := v_total + i;
+		
+    END LOOP;
+    
+    RETURN v_total;
+END;
+/
+
+EXECUTE DBMS_OUTPUT.PUT_LINE(ydsum(10));
+
+SELECT ydsum(10) FROM dual;
+
+-- 2)
+
+CREATE OR REPLACE FUNCTION ydinc
+( v_id employees.employee_id%TYPE )
+RETURN NUMBER
+IS
+    v_sal employees.salary%TYPE;
+    v_raise employees.commission_pct%TYPE;
+    
+BEGIN
+    SELECT salary
+    INTO v_sal
+    FROM employees
+    WHERE employee_id = v_id;
+    
+    IF v_sal <= 5000 THEN
+        v_raise := 0.2;
+    ELSIF v_sal <= 10000 THEN
+        v_raise := 0.15;
+    ELSIF v_sal <= 20000 THEN
+        v_raise := 0.1;
+    ELSE
+        v_raise := 0;
+    END IF;
+    
+    RETURN (v_sal * (1 + v_raise) );
+END;
+/
+
+-- 3)
+
+CREATE OR REPLACE FUNCTION YD_FUNC
+( v_eid employees.employee_id%TYPE )
+RETURN NUMBER
+IS
+    v_annual employees.salary%TYPE;
+BEGIN
+    SELECT (salary + (salary * NVL(commission_pct, 0)) * 12)
+    INTO v_annual
+    FROM employees
+    WHERE employee_id = v_eid;
+    
+    RETURN v_annual;
+END;
+/
+
+SELECT last_name, salary, YD_FUNC(employee_id)
+FROM   employees;
+
+-- 4)
+
+CREATE OR REPLACE FUNCTION subname
+( v_name VARCHAR2 )
+RETURN VARCHAR2
+IS 
+BEGIN
+    RETURN RPAD(SUBSTR(v_name,1,1), LENGTH(v_name), '*');
+END;
+/
+
+SELECT last_name, subname(last_name)
+FROM   employees;
+
+
+
+
+
+--5 풀이
+
+-- 1. SELECT 문을 두번 사용
+
+CREATE OR REPLACE FUNCTION y_dept
+( v_eid employees.employee_id%TYPE )
+RETURN VARCHAR2
+IS
+    v_dept_id departments.department_id%TYPE;
+    v_dept_name departments.department_name%TYPE;
+    e_no_dept_info EXCEPTION;
+BEGIN
+    SELECT department_id
+    INTO v_dept_id
+    FROM employees
+    WHERE employee_id = v_eid;
+    
+    IF v_dept_id IS NULL THEN
+        RAISE e_no_dept_info;
+    END IF;
+    
+    SELECT department_name
+    INTO v_dept_name
+    FROM departments
+    WHERE department_id = v_dept_id;
+    
+    RETURN v_dept_name;
+        -- => 사원번호를 기반으로 select : no_data_found
+        -- => 부서번호가 null인 경우 사용자 정의 예외
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '해당 사원이 존재하지 않습니다.';  
+    WHEN e_no_dept_info THEN
+        RETURN '현재 소속부서가 존재하지 않습니다.';
+END;
+/
+
+SELECT employee_id, y_dept(employee_id)
+FROM   employees;
+
+-- 2. JOIN을 이용하여 SELECT 문 한번 사용
+
+CREATE OR REPLACE FUNCTION y_dept
+( v_eid employees.employee_id%TYPE )
+RETURN VARCHAR2
+IS
+    v_dept_name departments.department_name%TYPE;
+    e_no_dept_info EXCEPTION;
+BEGIN
+    SELECT d.department_name
+    INTO v_dept_name
+    FROM employees e LEFT OUTER JOIN departments d  -- outer join 조건에 동일한 값이 없더라도 가져온다
+    ON e.department_id = d.department_id
+    WHERE employee_id = v_eid;
+    
+    IF v_dept_name IS NULL THEN
+        RAISE e_no_dept_info;
+    END IF;
+    
+    RETURN v_dept_name;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN '해당 사원이 존재하지 않습니다.';
+    WHEN e_no_dept_info THEN
+        RETURN '현재 소속부서가 존재하지 않습니다.';
+END;
+/
+
+-- 데이터 딕셔너리
+select name, text
+from user_source
+where type in ('procedure' , 'function', 'package', 'package body');
+
+
+
+

@@ -1,0 +1,231 @@
+--2
+
+declare
+    v_eid employees.employee_id%type := &사원번호;
+    v_name departments.department_name%type;
+    v_job employees.job_id%type;
+    v_sal employees.salary%type;
+    v_annul number;
+
+
+begin
+    select department_name, job_id, salary, (salary + (salary * NVL(commission_pct, 0))) * 12
+    into v_name,v_job,v_sal,v_annul
+    from employees e left outer join departments d on e.department_id = d.department_id
+    where employee_id = v_eid;
+
+    dbms_output.put_line('부서 이름 : ' || v_name);
+    dbms_output.put_line(', 직무 : ' || v_job);
+    dbms_output.put_line(', 급여 : ' || v_sal);
+    dbms_output.put_line(', 연간 총 수입 : ' || v_annul);
+end;
+/
+
+--3
+declare
+    v_eid employees.employee_id%type := &사원번호;
+    
+    cursor emp_cursor is
+        select hire_date
+        from employees
+        where employee_id = v_eid;
+    
+    
+begin
+    for emp_record in emp_cursor loop 
+        if emp_record.hire_date > to_date('2006-01-01','yyyy-MM-dd') then
+        dbms_output.put_line('New employee');
+        else
+        dbms_output.put_line('Career employee');
+        end if;
+    
+    end loop;
+
+
+end;
+/
+
+--4
+declare
+
+
+begin
+    for i in 2..9 loop
+        
+        for j in 1..9 loop
+            dbms_output.put_line(i ||'X'|| j ||'='|| i*j);
+        end loop;
+    
+    end loop;
+
+
+end;
+/
+
+
+--5
+declare
+    cursor emp_cursor is
+        select employee_id, last_name, salary
+        from employees
+        where department_id = &부서번호;
+        
+    
+
+begin
+    for emp_record in emp_cursor loop
+        dbms_output.put_line('사원의 사번: ' || emp_record.employee_id);
+        dbms_output.put_line('이름: ' || emp_record.last_name);
+        dbms_output.put_line('급여: ' || emp_record.salary);
+    
+    end loop;
+
+
+end;
+/
+
+
+--6
+create or replace procedure emp_pro
+(v_eid employees.employee_id%type,
+ v_sal number)
+ 
+ is    
+    
+    emp_ex exception;
+begin
+    
+    
+    
+    update employees set salary = salary + salary*( v_sal/100)
+    where employee_id = v_eid;
+    
+    if sql%rowcount = 0 then
+    raise emp_ex;
+    end if;
+exception    
+    when emp_ex then
+    dbms_output.put_line('No search employee!!');
+    
+end;
+/
+
+
+--7
+create or replace procedure human_info
+(v_num varchar2)
+    
+is
+    v_age number;
+    v_gender varchar2(10);
+
+begin
+     
+     
+     
+     v_age := 23- to_number(substr(v_num,1,2));
+     
+     if substr(v_num,7,1) = '1' or substr(v_num,7,1) = '3' then
+     v_gender := '남자';
+     else
+     v_gender := '여자';
+    
+    end if;
+    
+    dbms_output.put_line('만나이 : ' || v_age);
+    dbms_output.put_line('성별 : ' || v_gender);
+end;
+/
+
+execute human_info('0211023234567');
+
+--8 
+create or replace function emp_career
+(v_eid employees.employee_id%type)
+    return number
+
+is
+    v_hiredate employees.hire_date%type;
+    v_career number;
+begin
+    select hire_date
+    into v_hiredate
+    from employees
+    where employee_id = v_eid;
+    
+    
+  v_career := trunc(months_between(sysdate,v_hiredate)/12);
+    
+    return v_career;
+    
+   
+    
+    
+end;
+/
+
+--9
+create or replace function dept_manager
+(v_name departments.department_name%type)
+    return varchar2
+
+is
+    v_mid number;
+    v_manager varchar2(30);
+begin
+    
+    
+    select last_name
+    into v_manager
+    from employees 
+    where  manager_id =(select e.manager_id
+            into v_mid
+            from employees e join departments d
+            where d.department_name = v_name);
+    
+    return v_manager;
+    
+end;
+/
+
+
+-- 10
+select name, text
+from user_source
+where type in ('procedure' , 'function', 'package', 'package body');
+
+
+--11
+
+declare
+    v_line varchar2(30) := '';
+    v_count number := 0;
+    v_star varchar2(30) := '';
+begin
+    for i in reverse 1..9 loop
+        v_count:= 0;
+        v_line:='';
+    loop
+    if v_count = i then
+        v_line := v_line || '*';
+        
+    end if;    
+    v_line := v_line || '-';
+    
+    v_count := v_count +1; 
+    
+    
+    exit when v_count = i;
+    end loop;
+    
+    v_count := 0;
+    loop
+        v_star := v_star ||'*';
+        v_count := v_count +1;
+        exit when v_count <= 10-i;
+      end loop;
+      dbms_output.put(v_line);
+      dbms_output.put_line(v_star);
+    end loop;
+end;
+/
